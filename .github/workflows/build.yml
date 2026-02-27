@@ -45,7 +45,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
+        env:
+            PUPPETEER_SKIP_DOWNLOAD: true
       - name: Fix dmg-builder hex color parsing
         run: |
           python3 -c "
