@@ -8,8 +8,6 @@
 !macroend
 
 !macro customInit
-  ; Set installer window color to match app theme
-  SetCtlColors $INSTDIR_TEXT 0xF0F2FF 0x0A0B0F
 !macroend
 
 !macro customInstall
