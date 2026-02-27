@@ -3,7 +3,7 @@ name: Build & Release ROM Scraper
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*' # Triggers on tags like v1.0.0 or v2.3.4 
 
 jobs:
   build-windows:
@@ -18,8 +18,9 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
         run: npm install
-
       - name: Build Windows installer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,27 +46,27 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Fix dmg-builder color bug
+      - name: Fix dmg-builder hex color parsing
         run: |
-          python3 << 'EOF'
+          python3 -c "
           import os
-          # Path to the file identified in the error log
-          core_file = 'node_modules/dmg-builder/vendor/dmgbuild/core.py'
-          
-          if os.path.exists(core_file):
-              with open(core_file, 'r') as f:
+          colors_file = 'node_modules/dmg-builder/vendor/dmgbuild/colors.py'
+          if os.path.exists(colors_file):
+              with open(colors_file, 'r') as f:
                   content = f.read()
-              
-              # Targeted patch for the line: c = parseColor(background_color).to_rgb()
-              old_line = 'c = parseColor(background_color).to_rgb()'
-              new_line = 'try:\n        c = parseColor(background_color).to_rgb()\n    except:\n        c = (10, 11, 15)'
-              
-              if old_line in content:
-                  new_content = content.replace(old_line, new_line)
-                  with open(core_file, 'w') as f:
-                      f.write(new_content)
-                  print("Successfully patched core.py")
-          EOF
+              # Make hex color regex case-insensitive so #0A0B0F and #111112 both work
+              old = \"re.compile('#([0-9a-f]{3}(?:[0-9a-f]{3})?)\"
+              new = \"re.compile('#([0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?)\"
+              if old in content:
+                  content = content.replace(old, new)
+                  with open(colors_file, 'w') as f:
+                      f.write(content)
+                  print('Patched colors.py: hex regex now case-insensitive')
+              else:
+                  print('Patch target not found in colors.py')
+          else:
+              print('colors.py not found')
+          "
 
       - name: Build Mac DMG
         env:
