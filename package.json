@@ -1,19 +1,19 @@
 {
   "name": "rom-scraper",
-  "version": "1.0.2",
-  "description": "Internal desktop scraping tool for Ryan's Outdoor Media — automates media collection and content migration.",
+  "version": "1.0.3",
+  "description": "Internal desktop scraping tool for Ryan's Outdoor Media \u2014 automates media collection and content migration.",
   "main": "main.js",
   "scripts": {
-    "start":     "electron .",
+    "start": "electron .",
     "build:win": "electron-builder --win --x64",
     "build:mac": "electron-builder --mac --x64 --arm64",
     "build:all": "electron-builder --win --mac --x64",
-    "release":   "electron-builder --win --mac --x64 --publish always"
+    "release": "electron-builder --win --mac --x64 --publish always"
   },
   "build": {
     "appId": "com.ryansoutdoormedia.rom-scraper",
     "productName": "ROM Scraper",
-    "copyright": "© 2025 Ryan's Outdoor Media",
+    "copyright": "\u00a9 2025 Ryan's Outdoor Media",
     "publish": {
       "provider": "github",
       "owner": "Alucrob",
@@ -29,7 +29,12 @@
     ],
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "assets/icon.ico",
       "artifactName": "ROM-Scraper-Setup-${version}.exe"
@@ -49,13 +54,39 @@
     },
     "mac": {
       "target": [
-        { "target": "dmg", "arch": ["x64"] },
-        { "target": "dmg", "arch": ["arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "assets/icon.png",
-      "artifactName": "ROM-Scraper-${version}-${arch}.dmg",
+      "artifactName": "ROM-Scraper-${version}.dmg",
       "category": "public.app-category.productivity",
       "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "ROM Scraper ${version}",
+      "backgroundColor": "#0A0B0F",
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "contents": [
+        {
+          "x": 150,
+          "y": 185,
+          "type": "file"
+        },
+        {
+          "x": 390,
+          "y": 185,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     },
     "directories": {
       "output": "dist",
