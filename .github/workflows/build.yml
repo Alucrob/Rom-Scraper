@@ -3,9 +3,10 @@ name: Build & Release ROM Scraper
 on:
   push:
     tags:
-      - 'v*' # Triggers on tags like v1.0.0 or v2.3.4 
+      - 'v*'
 
 jobs:
+
   build-windows:
     runs-on: windows-latest
     steps:
@@ -18,9 +19,8 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        env:
-          PUPPETEER_SKIP_DOWNLOAD: true
         run: npm install
+
       - name: Build Windows installer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,7 +30,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: dist/ROM-Scraper-Setup-*.exe
+          path: |
+            dist/ROM-Scraper-Setup-*.exe
+            dist/latest.yml
 
   build-mac:
     runs-on: macos-latest
@@ -45,30 +47,25 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        env:
-            PUPPETEER_SKIP_DOWNLOAD: true
-      - name: Fix dmg-builder hex color parsing
-        run: |
-          python3 -c "
-          import os
-          colors_file = 'node_modules/dmg-builder/vendor/dmgbuild/colors.py'
-          if os.path.exists(colors_file):
-              with open(colors_file, 'r') as f:
-                  content = f.read()
-              # Make hex color regex case-insensitive so #0A0B0F and #111112 both work
-              old = \"re.compile('#([0-9a-f]{3}(?:[0-9a-f]{3})?)\"
-              new = \"re.compile('#([0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?)\"
-              if old in content:
-                  content = content.replace(old, new)
-                  with open(colors_file, 'w') as f:
-                      f.write(content)
-                  print('Patched colors.py: hex regex now case-insensitive')
-              else:
-                  print('Patch target not found in colors.py')
-          else:
-              print('colors.py not found')
-          "
 
+      - name: Fix dmg-builder color bug
+        run: |
+          python3 << 'EOF'
+          import os, glob
+          paths = glob.glob('node_modules/dmg-builder/vendor/**/*.py', recursive=True)
+          paths += glob.glob('node_modules/dmg-builder/out/**/*.js', recursive=True)
+          paths += glob.glob('node_modules/dmg-builder/*.js', recursive=False)
+          for p in paths:
+              try:
+                  txt = open(p, encoding='utf-8', errors='ignore').read()
+                  if '0A0B0F' in txt or '0a0b0f' in txt:
+                      txt = txt.replace('#0A0B0F', '#000000').replace('#0a0b0f', '#000000')
+                      txt = txt.replace('0A0B0F', '000000').replace('0a0b0f', '000000')
+                      open(p, 'w').write(txt)
+                      print('Patched:', p)
+              except Exception as e:
+                  print('Skip:', p, e)
+          EOF
       - name: Build Mac DMG
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,7 +75,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-installer
-          path: dist/ROM-Scraper-*.dmg
+          path: |
+            dist/ROM-Scraper-*.dmg
+            dist/latest-mac.yml
 
   release:
     needs: [build-windows, build-mac]
