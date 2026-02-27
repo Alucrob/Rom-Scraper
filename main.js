@@ -193,6 +193,8 @@ ipcMain.on('win-maximize', () => {
 });
 ipcMain.on('win-close', () => mainWindow?.close());
 
+ipcMain.handle('get-version', () => app.getVersion());
+
 /* ── Browse for output directory ── */
 ipcMain.handle('browse-directory', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
