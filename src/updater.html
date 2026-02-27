@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'">
+<title>ROM Scraper — Update</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #0A0B0F;
+  color: #F0F2FF;
+  font-family: 'IBM Plex Mono', monospace;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ── Titlebar ── */
+.titlebar {
+  height: 40px;
+  background: #0D0F14;
+  border-bottom: 1px solid #1E2030;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+}
+.titlebar-logo {
+  width: 22px; height: 22px;
+  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.titlebar-title {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 2px; color: #F0F2FF;
+  text-transform: uppercase; margin-left: 10px;
+}
+.titlebar-sub {
+  font-size: 9px; color: #4A4F6A;
+  letter-spacing: 1px; margin-left: 8px;
+}
+
+/* ── Main content ── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px 24px;
+  gap: 20px;
+}
+
+/* ── Update available header ── */
+.update-header {
+  display: flex; align-items: center; gap: 14px;
+}
+.update-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 20px rgba(255,77,46,0.3);
+  flex-shrink: 0;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%,100% { box-shadow: 0 0 20px rgba(255,77,46,0.3); }
+  50%      { box-shadow: 0 0 35px rgba(255,77,46,0.5); }
+}
+.update-title {
+  font-size: 16px; font-weight: 700;
+  color: #F0F2FF; letter-spacing: 1px;
+}
+.update-sub {
+  font-size: 10px; color: #6B7280;
+  margin-top: 4px; letter-spacing: 1px;
+}
+
+/* ── Version comparison ── */
+.version-row {
+  display: flex; align-items: center; gap: 12px;
+  background: #0D0F16;
+  border: 1px solid #1E2030;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.ver-block { flex: 1; }
+.ver-label {
+  font-size: 8px; letter-spacing: 2px;
+  color: #4A4F6A; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ver-num {
+  font-size: 18px; font-weight: 700;
+  letter-spacing: 2px;
+}
+.ver-current .ver-num { color: #6B7280; }
+.ver-new .ver-num     { color: #FF4D2E; }
+.ver-arrow {
+  font-size: 20px; color: #FF4D2E;
+  opacity: 0.6;
+}
+
+/* ── Release notes ── */
+.notes-label {
+  font-size: 8px; letter-spacing: 2px;
+  color: #4A4F6A; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.notes-box {
+  background: #0D0F16;
+  border: 1px solid #1E2030;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 11px;
+  color: #8B92B8;
+  line-height: 1.7;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+/* ── Progress ── */
+.progress-wrap {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.progress-wrap.visible { display: flex; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: #6B7280; letter-spacing: 1px;
+}
+.progress-track {
+  height: 4px;
+  background: #1E2030;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF4D2E, #FF6B4A);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(255,77,46,0.5);
+}
+.progress-bytes {
+  font-size: 9px; color: #4A4F6A;
+  text-align: right; letter-spacing: 1px;
+}
+
+/* ── Status message ── */
+.status-msg {
+  font-size: 10px;
+  color: #6B7280;
+  letter-spacing: 1px;
+  min-height: 16px;
+  text-align: center;
+}
+.status-msg.success { color: #22C55E; }
+.status-msg.error   { color: #EF4444; }
+
+/* ── Buttons ── */
+.btn-row {
+  display: flex; gap: 10px;
+  margin-top: auto;
+}
+.btn {
+  flex: 1; padding: 11px;
+  border: none; border-radius: 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255,77,46,0.3);
+}
+.btn-primary:hover {
+  box-shadow: 0 0 24px rgba(255,77,46,0.5);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.5; cursor: not-allowed; transform: none;
+}
+.btn-secondary {
+  background: #14161F;
+  color: #6B7280;
+  border: 1px solid #1E2030;
+}
+.btn-secondary:hover { color: #F0F2FF; border-color: #2E3250; }
+.btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── Corner accents ── */
+.corner { position:fixed; width:14px; height:14px; border-color:rgba(255,77,46,0.15); border-style:solid; }
+.corner-tl { top:8px;  left:8px;  border-width:1px 0 0 1px; }
+.corner-tr { top:8px;  right:8px; border-width:1px 1px 0 0; }
+.corner-bl { bottom:8px; left:8px;  border-width:0 0 1px 1px; }
+.corner-br { bottom:8px; right:8px; border-width:0 1px 1px 0; }
+</style>
+</head>
+<body>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- Titlebar -->
+<div class="titlebar">
+  <div class="titlebar-logo">RS</div>
+  <div class="titlebar-title">ROM Scraper</div>
+  <div class="titlebar-sub">// Update Available</div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- Header -->
+  <div class="update-header">
+    <div class="update-icon">↑</div>
+    <div>
+      <div class="update-title">Update Available</div>
+      <div class="update-sub">A new version of ROM Scraper is ready to install</div>
+    </div>
+  </div>
+
+  <!-- Version comparison -->
+  <div class="version-row">
+    <div class="ver-block ver-current">
+      <div class="ver-label">Current Version</div>
+      <div class="ver-num" id="currentVer">1.0.0</div>
+    </div>
+    <div class="ver-arrow">→</div>
+    <div class="ver-block ver-new">
+      <div class="ver-label">New Version</div>
+      <div class="ver-num" id="newVer">—</div>
+    </div>
+  </div>
+
+  <!-- Release notes -->
+  <div>
+    <div class="notes-label">What's New</div>
+    <div class="notes-box" id="releaseNotes">Loading release notes...</div>
+  </div>
+
+  <!-- Progress (hidden until download starts) -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span>Downloading update...</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-bytes" id="progressBytes"></div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-msg" id="statusMsg"></div>
+
+  <!-- Buttons -->
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="skipBtn" onclick="skip()">Skip for Now</button>
+    <button class="btn btn-primary"   id="updateBtn" onclick="startUpdate()">Download & Install</button>
+  </div>
+
+</div>
+
+<script>
+function formatBytes(b) {
+  if (!b) return '';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(1) + ' MB';
+}
+
+function setStatus(msg, type = '') {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + type;
+}
+
+// Receive update info from main process
+window.updaterAPI.onStatus(({ currentVersion, newVersion, releaseNotes }) => {
+  document.getElementById('currentVer').textContent = currentVersion;
+  document.getElementById('newVer').textContent     = newVersion;
+  document.getElementById('releaseNotes').textContent = releaseNotes || 'No release notes provided.';
+});
+
+// Download progress
+window.updaterAPI.onProgress(({ percent, transferred, total }) => {
+  document.getElementById('progressWrap').classList.add('visible');
+  document.getElementById('progressFill').style.width = percent.toFixed(1) + '%';
+  document.getElementById('progressPct').textContent  = percent.toFixed(0) + '%';
+  document.getElementById('progressBytes').textContent =
+    formatBytes(transferred) + ' / ' + formatBytes(total);
+  document.getElementById('updateBtn').disabled = true;
+  document.getElementById('skipBtn').disabled   = true;
+});
+
+// Download complete — ready to install
+window.updaterAPI.onComplete(() => {
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressPct').textContent  = '100%';
+  setStatus('Update downloaded! Restarting to install...', 'success');
+  document.getElementById('updateBtn').disabled = false;
+  document.getElementById('updateBtn').textContent = 'Restart & Install';
+  document.getElementById('updateBtn').onclick = () => window.updaterAPI.installNow();
+  setTimeout(() => window.updaterAPI.installNow(), 2000);
+});
+
+function startUpdate() {
+  setStatus('Starting download...');
+  document.getElementById('updateBtn').disabled = true;
+  document.getElementById('skipBtn').disabled   = false;
+  window.updaterAPI.installNow();
+}
+
+function skip() {
+  window.updaterAPI.skipUpdate();
+}
+</script>
+</body>
+</html>

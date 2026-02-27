@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'">
+<title>ROM SCRAPER</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   ROM SCRAPER — Dark Industrial Theme
+═══════════════════════════════════════════════════ */
+:root {
+  --bg-deep:    #0A0B0F;
+  --bg-panel:   #111318;
+  --bg-card:    #181B23;
+  --bg-input:   #1E2130;
+  --bg-hover:   #252A3A;
+  --accent:     #FF4D2E;
+  --accent2:    #FF7A5C;
+  --accent-dim: #8B2A1A;
+  --text-pri:   #F0F2FF;
+  --text-sec:   #8A91B0;
+  --text-dim:   #444A6A;
+  --border:     #252A3A;
+  --border-lt:  #303650;
+  --success:    #2ECC8A;
+  --warning:    #FFB830;
+  --error:      #FF4D2E;
+  --info:       #4D9EFF;
+  --tip:        #B060FF;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-pri);
+  font-family: var(--mono);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-lt); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444A6A; }
+
+/* ══════════════════════════════════════
+   TITLEBAR
+══════════════════════════════════════ */
+.titlebar {
+  height: 48px;
+  background: linear-gradient(180deg, #14161F 0%, #0D0F14 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  z-index: 100;
+  animation: slideDown 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.tb-wm { display: flex; gap: 7px; -webkit-app-region: no-drag; }
+.wm-btn {
+  width: 13px; height: 13px; border-radius: 50%;
+  cursor: pointer; border: none; outline: none;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.wm-btn:hover { opacity: 0.85; transform: scale(1.1); }
+.wm-close { background: #FF5F57; }
+.wm-min   { background: #FEBC2E; }
+.wm-max   { background: #2BC840; }
+
+.tb-divider { width: 1px; height: 22px; background: var(--border); }
+
+.tb-brand { display: flex; align-items: center; gap: 10px; }
+.tb-logo {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
+  box-shadow: 0 0 14px rgba(255,77,46,0.45);
+  flex-shrink: 0;
+}
+.tb-name { font-size: 12px; font-weight: 700; letter-spacing: 4px; color: var(--text-pri); }
+.tb-sub  { font-size: 8px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; }
+
+.tb-center {
+  flex: 1; text-align: center;
+  font-size: 10px; letter-spacing: 2px; color: var(--text-dim);
+}
+
+.tb-actions { display: flex; gap: 6px; -webkit-app-region: no-drag; }
+.tb-btn {
+  padding: 5px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-sec);
+  font-family: var(--mono);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s;
+}
+.tb-btn:hover { background: var(--bg-hover); color: var(--text-pri); }
+
+/* ══════════════════════════════════════
+   MAIN LAYOUT — 4 columns
+══════════════════════════════════════ */
+.app-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 190px 1fr 1fr 260px;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════
+   LEFT SIDEBAR — Presets
+══════════════════════════════════════ */
+.sidebar-presets {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.sb-header {
+  padding: 14px 14px 10px;
+  font-size: 8px; letter-spacing: 3px;
+  color: var(--accent); text-transform: uppercase; font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.preset-list { overflow-y: auto; flex: 1; }
+
+.preset-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  transition: all 0.12s;
+  animation: presetBounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.preset-item:hover { background: var(--bg-input); }
+.preset-item:hover .preset-name { color: var(--text-pri); }
+.preset-item.active {
+  background: var(--bg-input);
+  border-left-color: var(--accent);
+}
+.preset-item.active .preset-name { color: var(--accent); }
+.preset-item.active .preset-icon { background: rgba(255,77,46,0.12); border-color: var(--accent-dim); color: var(--accent); }
+
+.preset-icon {
+  width: 24px; height: 24px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-lt);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: var(--text-sec);
+  flex-shrink: 0; text-transform: uppercase; letter-spacing: -0.5px;
+}
+
+.preset-name { font-size: 11px; color: var(--text-sec); }
+
+.sb-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 8px; color: var(--text-dim);
+  letter-spacing: 1px; line-height: 1.7;
+  text-align: center; flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   CENTER — Config
+══════════════════════════════════════ */
+.center-panel {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.3s ease both;
+}
+.card:nth-child(1){animation-delay:0.04s}
+.card:nth-child(2){animation-delay:0.08s}
+.card:nth-child(3){animation-delay:0.12s}
+.card:nth-child(4){animation-delay:0.16s}
+.card:focus-within { border-color: rgba(255,77,46,0.25); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+@keyframes presetBounceIn {
+  from { opacity:0; transform: translateX(-16px) scale(0.9); }
+  to   { opacity:1; transform: translateX(0) scale(1); }
+}
+
+/* Stagger preset items */
+.preset-item:nth-child(1)  { animation-delay: 0.05s }
+.preset-item:nth-child(2)  { animation-delay: 0.10s }
+.preset-item:nth-child(3)  { animation-delay: 0.15s }
+.preset-item:nth-child(4)  { animation-delay: 0.20s }
+.preset-item:nth-child(5)  { animation-delay: 0.25s }
+.preset-item:nth-child(6)  { animation-delay: 0.30s }
+.preset-item:nth-child(7)  { animation-delay: 0.35s }
+.preset-item:nth-child(8)  { animation-delay: 0.40s }
+.preset-item:nth-child(9)  { animation-delay: 0.45s }
+.preset-item:nth-child(10) { animation-delay: 0.50s }
+.preset-item:nth-child(11) { animation-delay: 0.55s }
+.preset-item:nth-child(12) { animation-delay: 0.60s }
+
+.card-hdr {
+  font-size: 8px; letter-spacing: 3px;
+  color: var(--accent); text-transform: uppercase; font-weight: 700;
+  margin-bottom: 12px; padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 7px;
+}
+.card-hdr::before {
+  content: ''; display: inline-block;
+  width: 3px; height: 12px;
+  background: var(--accent); border-radius: 2px;
+}
+
+.field-lbl {
+  display: block; font-size: 8px; letter-spacing: 2px;
+  color: var(--text-sec); text-transform: uppercase; margin-bottom: 5px;
+}
+
+/* ── Inputs ── */
+.inp {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-pri);
+  padding: 9px 13px;
+  font-size: 12px; font-family: var(--mono);
+  outline: none; caret-color: var(--accent);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.inp::placeholder { color: var(--text-dim); }
+.inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,77,46,0.1); }
+.inp.url-inp { padding-left: 34px; }
+
+.url-wrap { position: relative; }
+.url-wrap::before {
+  content: '⌁'; position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%); color: var(--accent); font-size: 15px; pointer-events: none;
+}
+
+.date-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; margin-top: 12px; }
+.date-arrow { color: var(--accent); font-size: 16px; text-align: center; padding-bottom: 9px; }
+
+/* ── Content type checkboxes ── */
+.ct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ct-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer; transition: all 0.12s;
+  font-size: 10.5px; color: var(--text-sec);
+}
+.ct-item:hover { border-color: var(--border-lt); background: var(--bg-hover); }
+.ct-item.on { border-color: rgba(255,77,46,0.35); background: rgba(255,77,46,0.05); color: var(--text-pri); }
+
+.chk {
+  width: 15px; height: 15px; flex-shrink: 0;
+  background: var(--bg-hover); border: 1px solid var(--border-lt);
+  border-radius: 3px; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #fff; transition: all 0.12s;
+}
+.ct-item.on .chk { background: var(--accent); border-color: var(--accent); }
+
+/* ── Spin options ── */
+.opts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.spin-grp { display: flex; flex-direction: column; gap: 5px; }
+.spin-inp {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text-pri); padding: 7px 10px; font-size: 13px;
+  font-family: var(--mono); font-weight: 600; width: 100%;
+  text-align: center; outline: none;
+  transition: border-color 0.15s;
+}
+.spin-inp:focus { border-color: var(--accent); }
+
+/* ── Toggles ── */
+.flags-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.flag-item {
+  display: flex; align-items: center; gap: 9px;
+  cursor: pointer; padding: 5px 3px;
+  font-size: 10.5px; color: var(--text-sec); transition: color 0.12s;
+}
+.flag-item:hover { color: var(--text-pri); }
+.flag-item.on { color: var(--text-pri); }
+
+.toggle {
+  width: 34px; height: 18px; flex-shrink: 0;
+  background: var(--bg-hover); border: 1px solid var(--border-lt);
+  border-radius: 9px; position: relative; transition: all 0.2s;
+}
+.toggle::after {
+  content: ''; position: absolute;
+  left: 2px; top: 2px; width: 12px; height: 12px;
+  background: var(--text-dim); border-radius: 50%; transition: all 0.2s;
+}
+.flag-item.on .toggle { background: rgba(255,77,46,0.2); border-color: var(--accent); }
+.flag-item.on .toggle::after { left: 18px; background: var(--accent); }
+
+/* ── Output row ── */
+.out-row { display: flex; gap: 7px; }
+.out-row .inp { flex: 1; }
+
+/* ── Action bar ── */
+.action-bar { display: flex; gap: 7px; padding: 2px 0 4px; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 10px 18px; border: none; border-radius: 6px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.13s; white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
+  color: #fff; flex: 1;
+  box-shadow: 0 4px 18px rgba(255,77,46,0.32);
+}
+.btn-primary:hover { box-shadow: 0 6px 26px rgba(255,77,46,0.5); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary { background: var(--bg-input); border: 1px solid var(--border-lt); color: var(--text-sec); }
+.btn-secondary:hover { background: var(--bg-hover); color: var(--text-pri); }
+.btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-danger { background: transparent; border: 1px solid var(--accent-dim); color: var(--accent); }
+.btn-danger:hover { background: rgba(255,77,46,0.1); border-color: var(--accent); }
+.btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ══════════════════════════════════════
+   RIGHT COLUMN — Results + Log
+══════════════════════════════════════ */
+.right-panel {
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.results-section { flex: 1; display: flex; flex-direction: column; border-bottom: 1px solid var(--border); overflow: hidden; }
+.log-section { height: 210px; display: flex; flex-direction: column; overflow: hidden; }
+
+.panel-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel); flex-shrink: 0;
+}
+.panel-title {
+  font-size: 8px; letter-spacing: 3px; color: var(--accent);
+  text-transform: uppercase; font-weight: 700; flex: 1;
+  display: flex; align-items: center; gap: 6px;
+}
+.panel-title::before { content: ''; display:inline-block; width:3px; height:11px; background:var(--accent); border-radius:2px; }
+.panel-actions { display: flex; gap: 5px; }
+.panel-btn {
+  padding: 4px 10px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text-sec);
+  font-family: var(--mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.12s;
+}
+.panel-btn:hover { background: var(--bg-hover); color: var(--text-pri); }
+
+/* ── Results table ── */
+.results-table { flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+thead th {
+  background: var(--bg-card); padding: 8px 12px;
+  text-align: left; font-size: 8px; letter-spacing: 1.5px;
+  color: var(--text-sec); text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 1; font-weight: 700; white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.025); cursor: pointer; transition: background 0.1s; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+tbody tr.sel { background: rgba(255,77,46,0.06); }
+tbody td { padding: 8px 12px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.td-status-ok   { color: var(--success); }
+.td-status-err  { color: var(--error); }
+.td-status-dl   { color: var(--warning); }
+.td-fn { color: var(--text-pri); font-weight: 500; }
+.td-type { color: var(--info); font-size: 9px; letter-spacing: 1px; }
+.td-url { color: var(--text-dim); font-size: 9.5px; max-width: 180px; }
+
+/* ── Log ── */
+.log-body {
+  flex: 1; overflow-y: auto; padding: 8px 12px;
+  background: #070809; font-size: 10.5px; line-height: 1.75;
+}
+.log-line { display: flex; gap: 9px; }
+.log-ts   { color: var(--text-dim); flex-shrink: 0; font-size: 9.5px; }
+.log-lvl  { font-weight: 700; flex-shrink: 0; width: 46px; font-size: 9.5px; }
+.log-msg  { color: var(--text-sec); word-break: break-all; }
+.lvl-info   { color: var(--info); }
+.lvl-ok     { color: var(--success); }
+.lvl-warn   { color: var(--warning); }
+.lvl-err    { color: var(--error); }
+.lvl-scan   { color: var(--accent2); }
+.lvl-start  { color: var(--accent); }
+.lvl-done   { color: var(--success); }
+.lvl-skip   { color: var(--text-dim); }
+
+/* ══════════════════════════════════════
+   RIGHT SIDEBAR — Instructions / Help
+══════════════════════════════════════ */
+.sidebar-help {
+  background: #0D0F16;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: slideRight 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) 0.2s both;
+}
+
+@keyframes slideRight {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+.help-tabs {
+  display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.help-tab {
+  flex: 1; padding: 11px 0;
+  font-size: 8px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase;
+  color: var(--text-dim); cursor: pointer; text-align: center;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.help-tab:hover { color: var(--text-sec); }
+.help-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.help-content { flex: 1; overflow-y: auto; padding: 14px; }
+
+.help-section { margin-bottom: 18px; }
+.help-section-title {
+  font-size: 8px; letter-spacing: 2.5px; color: var(--accent);
+  text-transform: uppercase; font-weight: 700;
+  margin-bottom: 8px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.help-section-title::before { content: '//'; color: var(--accent-dim); }
+
+.help-tip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 5px;
+  padding: 9px 11px;
+  margin-bottom: 7px;
+  font-size: 10.5px; line-height: 1.65; color: var(--text-sec);
+}
+.help-tip strong { color: var(--text-pri); font-weight: 600; }
+.help-tip.tip-purple { border-left-color: var(--tip); }
+.help-tip.tip-green  { border-left-color: var(--success); }
+.help-tip.tip-blue   { border-left-color: var(--info); }
+.help-tip.tip-warn   { border-left-color: var(--warning); }
+
+.help-setting {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.hs-name { font-size: 10px; font-weight: 700; color: var(--text-pri); }
+.hs-val  { font-size: 9px; color: var(--accent); letter-spacing: 0.5px; }
+.hs-desc { font-size: 10px; color: var(--text-sec); line-height: 1.6; margin-top: 2px; }
+
+.help-badge {
+  display: inline-block; padding: 2px 7px;
+  background: rgba(255,77,46,0.12); border: 1px solid var(--accent-dim);
+  border-radius: 3px; font-size: 9px; color: var(--accent);
+  font-weight: 700; letter-spacing: 0.5px; margin-right: 4px; margin-bottom: 4px;
+}
+.help-badge.green { background: rgba(46,204,138,0.1); border-color: #1A8A5A; color: var(--success); }
+.help-badge.blue  { background: rgba(77,158,255,0.1); border-color: #2060AA; color: var(--info); }
+.help-badge.purple{ background: rgba(176,96,255,0.1); border-color: #6030AA; color: var(--tip); }
+
+/* ── Cookie fields ── */
+.cookie-field-row {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 6px;
+}
+.cookie-key {
+  font-size: 10.5px; font-weight: 700; color: var(--accent);
+  background: rgba(255,77,46,0.08); border: 1px solid var(--accent-dim);
+  border-right: none; border-radius: 5px 0 0 5px;
+  padding: 8px 10px; white-space: nowrap; min-width: 90px;
+  text-align: right; flex-shrink: 0;
+}
+.cookie-val {
+  border-radius: 0 5px 5px 0 !important;
+  font-size: 10.5px !important;
+}
+
+.quickstart-step {
+  display: flex; gap: 10px; margin-bottom: 10px;
+  padding: 10px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.step-num {
+  width: 22px; height: 22px; flex-shrink: 0;
+  background: var(--accent); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff;
+}
+.step-body { flex: 1; }
+.step-title { font-size: 10.5px; font-weight: 700; color: var(--text-pri); margin-bottom: 3px; }
+.step-desc  { font-size: 10px; color: var(--text-sec); line-height: 1.55; }
+
+.platform-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px; margin-bottom: 7px;
+}
+.pc-name  { font-size: 10.5px; font-weight: 700; color: var(--text-pri); margin-bottom: 4px; }
+.pc-note  { font-size: 10px; color: var(--text-sec); line-height: 1.55; }
+.pc-tag   { margin-top: 5px; }
+
+/* ══════════════════════════════════════
+   STATUS BAR
+══════════════════════════════════════ */
+.statusbar {
+  height: 40px; background: #0D0F14;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 14px; gap: 10px;
+  flex-shrink: 0;
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-dim); flex-shrink: 0;
+}
+.status-dot.active { background: var(--success); animation: pulse 1.2s ease infinite; }
+.status-dot.error  { background: var(--error); }
+@keyframes pulse { 0%,100%{box-shadow:0 0 4px var(--success)} 50%{box-shadow:0 0 12px var(--success)} }
+
+.status-txt { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+.prog-wrap { flex: 1; height: 3px; background: var(--bg-input); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.4s ease; border-radius: 2px; }
+
+.stat-chip {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 10px; white-space: nowrap; flex-shrink: 0;
+}
+.sv { font-size: 12px; font-weight: 700; color: var(--text-pri); line-height: 1.2; }
+.sl { font-size: 7px; letter-spacing: 1.5px; color: var(--text-dim); text-transform: uppercase; }
+.sv.green { color: var(--success); }
+.sv.red   { color: var(--error); }
+</style>
+</head>
+<body>
+
+<!-- ══ TITLEBAR ══ -->
+<div class="titlebar">
+  <div class="tb-wm">
+    <button class="wm-btn wm-close"  onclick="window.romAPI.close()"></button>
+    <button class="wm-btn wm-min"    onclick="window.romAPI.minimize()"></button>
+    <button class="wm-btn wm-max"    onclick="window.romAPI.maximize()"></button>
+  </div>
+  <div class="tb-divider"></div>
+  <div class="tb-brand">
+    <div class="tb-logo">RS</div>
+    <div>
+      <div class="tb-name">ROM SCRAPER</div>
+      <div class="tb-sub">Web Scraping Toolbox</div>
+    </div>
+  </div>
+  <div class="tb-center">v1.0.0 — Electron Edition</div>
+  <div class="tb-actions">
+    <button class="tb-btn" onclick="openOutputFolder()">📁 OPEN FOLDER</button>
+    <button class="tb-btn" onclick="exportCSV()">EXPORT CSV</button>
+    <button class="tb-btn" onclick="exportJSON()">EXPORT JSON</button>
+  </div>
+</div>
+
+<!-- ══ MAIN BODY ══ -->
+<div class="app-body">
+
+  <!-- ═══ LEFT SIDEBAR — Presets ═══ -->
+  <div class="sidebar-presets">
+    <div class="sb-header">// Platform Presets</div>
+    <div class="preset-list" id="presetList">
+      <!-- injected by JS -->
+    </div>
+    <div class="sb-footer">ROM SCRAPER v1.0<br>© 2025 All rights reserved</div>
+  </div>
+
+  <!-- ═══ CENTER — Config ═══ -->
+  <div class="center-panel">
+
+    <!-- URL Card -->
+    <div class="card">
+      <div class="card-hdr">Target URL</div>
+      <label class="field-lbl">URL or Domain</label>
+      <div class="url-wrap">
+        <input class="inp url-inp" id="urlInput" type="url" placeholder="https://example.com/gallery  or  facebook.com/page/photos">
+      </div>
+      <div class="date-row">
+        <div>
+          <label class="field-lbl">Date From</label>
+          <input class="inp" id="dateFrom" type="text" placeholder="2024  or  2024-01-15">
+        </div>
+        <div class="date-arrow">→</div>
+        <div>
+          <label class="field-lbl">Date To</label>
+          <input class="inp" id="dateTo" type="text" placeholder="2026  or  2026-12-31">
+        </div>
+      </div>
+      <div style="margin-top:11px">
+        <label class="field-lbl">CSS Selector <span style="color:var(--text-dim)">(optional — auto-filled by presets)</span></label>
+        <input class="inp" id="selectorInput" type="text" placeholder="img.gallery-photo  or  div.media img  or  leave blank for all images">
+      </div>
+    </div>
+
+    <!-- Content Types -->
+    <div class="card">
+      <div class="card-hdr">Content Types</div>
+      <div class="ct-grid" id="ctGrid">
+        <div class="ct-item on" data-type="images"   onclick="toggleCT(this)"><div class="chk">✓</div>Images — JPG, PNG, WEBP, GIF, SVG</div>
+        <div class="ct-item"    data-type="videos"   onclick="toggleCT(this)"><div class="chk"></div>Videos — MP4, MOV, WEBM, AVI</div>
+        <div class="ct-item"    data-type="docs"     onclick="toggleCT(this)"><div class="chk"></div>Documents — PDF, DOCX, XLSX</div>
+        <div class="ct-item"    data-type="audio"    onclick="toggleCT(this)"><div class="chk"></div>Audio — MP3, WAV, OGG, FLAC</div>
+        <div class="ct-item"    data-type="html"     onclick="toggleCT(this)"><div class="chk"></div>HTML Source Pages</div>
+        <div class="ct-item"    data-type="cssjs"    onclick="toggleCT(this)"><div class="chk"></div>CSS & JavaScript Assets</div>
+        <div class="ct-item"    data-type="fonts"    onclick="toggleCT(this)"><div class="chk"></div>Fonts — WOFF, WOFF2, TTF, OTF</div>
+        <div class="ct-item"    data-type="all"      onclick="toggleCT(this)"><div class="chk"></div>All Files (wildcard)</div>
+      </div>
+    </div>
+
+    <!-- Crawl Options -->
+    <div class="card">
+      <div class="card-hdr">Crawl Options</div>
+      <div class="opts-grid">
+        <div class="spin-grp">
+          <label class="field-lbl">Crawl Depth</label>
+          <input class="spin-inp" id="maxDepth" type="number" value="0" min="0" max="5">
+        </div>
+        <div class="spin-grp">
+          <label class="field-lbl">Delay (sec)</label>
+          <input class="spin-inp" id="delay" type="number" value="0.5" min="0" max="30" step="0.1">
+        </div>
+        <div class="spin-grp">
+          <label class="field-lbl">Max Files</label>
+          <input class="spin-inp" id="maxFiles" type="number" value="200" min="1" max="10000">
+        </div>
+        <div class="spin-grp">
+          <label class="field-lbl">Timeout (sec)</label>
+          <input class="spin-inp" id="timeout" type="number" value="10" min="5" max="60">
+        </div>
+      </div>
+      <div class="flags-grid">
+        <div class="flag-item" id="flagFollowLinks" onclick="toggleFlag(this)">
+          <div class="toggle"></div><span>Follow same-domain links</span>
+        </div>
+        <div class="flag-item on" id="flagRobots" onclick="toggleFlag(this)">
+          <div class="toggle"></div><span>Respect robots.txt</span>
+        </div>
+        <div class="flag-item" id="flagJS" onclick="toggleFlag(this)">
+          <div class="toggle"></div><span>JS rendering mode</span>
+        </div>
+        <div class="flag-item on" id="flagDedup" onclick="toggleFlag(this)">
+          <div class="toggle"></div><span>Deduplicate files</span>
+        </div>
+        <div class="flag-item on" id="flagStructure" onclick="toggleFlag(this)">
+          <div class="toggle"></div><span>Preserve directory structure</span>
+        </div>
+        <div class="flag-item" id="flagMeta" onclick="toggleFlag(this)">
+          <div class="toggle"></div><span>Save metadata sidecar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="card">
+      <div class="card-hdr">Output</div>
+      <label class="field-lbl">Save Directory</label>
+      <div class="out-row">
+        <input class="inp" id="outputDir" type="text" placeholder="C:\Users\YourName\Downloads\rom_scraper">
+        <button class="btn btn-secondary" onclick="browseDir()">BROWSE</button>
+      </div>
+      <div style="margin-top:10px">
+        <label class="field-lbl">Filename Pattern <span style="color:var(--text-dim)">(blank = keep original names)</span></label>
+        <input class="inp" id="filenamePattern" type="text" placeholder="{domain}_{date}_{index}{ext}   e.g. → example-com_2025-03-12_001.jpg">
+      </div>
+    </div>
+
+    <!-- Session Cookies -->
+    <div class="card">
+      <div class="card-hdr">Session Cookies <span style="color:var(--text-dim);font-size:9px;letter-spacing:1px;font-weight:400">— FOR FACEBOOK, INSTAGRAM & PRIVATE SITES</span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="flag-item" id="flagCookies" onclick="toggleFlag(this);toggleCookiesPanel()" style="flex-shrink:0">
+          <div class="toggle"></div><span>Use session cookies</span>
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);line-height:1.5">Scrape as a logged-in user — bypasses Facebook/Instagram 403 blocks</div>
+      </div>
+      <div id="cookiesPanel" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div>
+            <label class="field-lbl">Platform</label>
+            <select class="inp" id="cookiePlatform" style="cursor:pointer;background:var(--bg-input)" onchange="switchCookieFields()">
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="twitter">Twitter / X</option>
+              <option value="custom">Custom / Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-lbl">Step-by-step guide</label>
+            <button class="btn btn-secondary" style="width:100%;font-size:9px;padding:8px" onclick="showCookieGuide()">📋  HOW TO GET COOKIES</button>
+          </div>
+        </div>
+
+        <!-- Facebook fields -->
+        <div id="cookieFields-facebook" class="cookie-fields">
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px">PASTE EACH VALUE FROM: Chrome → F12 → Application → Cookies → facebook.com</div>
+          <div class="cookie-field-row"><span class="cookie-key">c_user</span><input class="inp cookie-val" data-key="c_user" placeholder="Your Facebook user ID  e.g. 100083421234567" spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">xs</span><input class="inp cookie-val" data-key="xs" placeholder="Session token  e.g. 12%3AaBcDeFgH..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">datr</span><input class="inp cookie-val" data-key="datr" placeholder="Device token  e.g. xYzAbCdEfGhI..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">fr</span><input class="inp cookie-val" data-key="fr" placeholder="Tracking token  e.g. 0WmKqR8abc..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">sb</span><input class="inp cookie-val" data-key="sb" placeholder="Browser token  (optional)" spellcheck="false"></div>
+        </div>
+
+        <!-- Instagram fields -->
+        <div id="cookieFields-instagram" class="cookie-fields" style="display:none">
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px">PASTE EACH VALUE FROM: Chrome → F12 → Application → Cookies → instagram.com</div>
+          <div class="cookie-field-row"><span class="cookie-key">sessionid</span><input class="inp cookie-val" data-key="sessionid" placeholder="Your session ID  e.g. 12345678%3AaBcDeFgH..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">csrftoken</span><input class="inp cookie-val" data-key="csrftoken" placeholder="CSRF token  e.g. xYzAbCdEfGhIjKlM..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">ds_user_id</span><input class="inp cookie-val" data-key="ds_user_id" placeholder="Your Instagram user ID  e.g. 987654321" spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">ig_did</span><input class="inp cookie-val" data-key="ig_did" placeholder="Device ID  (optional)" spellcheck="false"></div>
+        </div>
+
+        <!-- Twitter fields -->
+        <div id="cookieFields-twitter" class="cookie-fields" style="display:none">
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px">PASTE EACH VALUE FROM: Chrome → F12 → Application → Cookies → twitter.com</div>
+          <div class="cookie-field-row"><span class="cookie-key">auth_token</span><input class="inp cookie-val" data-key="auth_token" placeholder="Auth token  e.g. aBcDeFgHiJkLmNoPqRsT..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">ct0</span><input class="inp cookie-val" data-key="ct0" placeholder="CSRF token  e.g. xYzAbCdEfGhIjKlMnOpQ..." spellcheck="false"></div>
+          <div class="cookie-field-row"><span class="cookie-key">twid</span><input class="inp cookie-val" data-key="twid" placeholder="User ID  e.g. u%3D123456789" spellcheck="false"></div>
+        </div>
+
+        <!-- Custom fields -->
+        <div id="cookieFields-custom" class="cookie-fields" style="display:none">
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px">ADD CUSTOM COOKIE KEY/VALUE PAIRS</div>
+          <div id="customCookieRows">
+            <div class="cookie-field-row custom-row">
+              <input class="inp" style="width:120px;flex-shrink:0;font-size:11px" placeholder="cookie name" spellcheck="false">
+              <span style="color:var(--text-dim);padding:0 6px;font-size:13px;align-self:center">=</span>
+              <input class="inp" style="flex:1;font-size:11px" placeholder="cookie value" spellcheck="false">
+              <button onclick="removeCustomRow(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:0 4px;align-self:center">✕</button>
+            </div>
+          </div>
+          <button class="btn btn-secondary" style="margin-top:8px;font-size:9px;padding:6px 12px" onclick="addCustomRow()">+ ADD ANOTHER COOKIE</button>
+        </div>
+
+        <div id="cookieStatus" style="margin-top:8px;font-size:10px;line-height:1.6"></div>
+      </div>
+    </div>
+
+    <!-- Cookie Guide Modal -->
+    <div id="cookieGuideModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:9999;align-items:center;justify-content:center;">
+      <div style="background:var(--bg-card);border:1px solid var(--border-lt);border-radius:10px;padding:24px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:10px;letter-spacing:3px;color:var(--accent);font-weight:700;text-transform:uppercase">// How to Copy Your Cookies</div>
+          <button onclick="hideCookieGuide()" style="background:none;border:none;color:var(--text-sec);font-size:18px;cursor:pointer;padding:0 4px">✕</button>
+        </div>
+        <div id="cookieGuideContent"></div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+      <button class="btn btn-primary" id="scrapeBtn" onclick="startScrape()">▶  START SCRAPE</button>
+      <button class="btn btn-secondary" id="pauseBtn" disabled onclick="pauseScrape()">⏸  PAUSE</button>
+      <button class="btn btn-danger"    id="stopBtn"  disabled onclick="stopScrape()">■  STOP</button>
+    </div>
+    <div style="height:6px"></div>
+  </div>
+
+  <!-- ═══ RIGHT COLUMN — Results + Log ═══ -->
+  <div class="right-panel">
+    <div class="results-section">
+      <div class="panel-hdr">
+        <div class="panel-title">Results</div>
+        <div class="panel-actions">
+          <button class="panel-btn" onclick="exportCSV()">CSV</button>
+          <button class="panel-btn" onclick="exportJSON()">JSON</button>
+          <button class="panel-btn" onclick="clearResults()">CLEAR</button>
+        </div>
+      </div>
+      <div class="results-table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26px">●</th>
+              <th>Filename</th>
+              <th style="width:55px">Type</th>
+              <th style="width:65px">Size</th>
+              <th style="width:85px">Date</th>
+              <th>Source URL</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="log-section">
+      <div class="panel-hdr">
+        <div class="panel-title">Activity Log</div>
+        <div class="panel-actions">
+          <button class="panel-btn" onclick="clearLog()">CLEAR</button>
+          <button class="panel-btn" onclick="saveLog()">SAVE LOG</button>
+        </div>
+      </div>
+      <div class="log-body" id="logBody"></div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT SIDEBAR — Help & Instructions ═══ -->
+  <div class="sidebar-help">
+    <div class="help-tabs">
+      <div class="help-tab active" onclick="switchTab('quickstart', this)">QUICK START</div>
+      <div class="help-tab" onclick="switchTab('settings', this)">SETTINGS</div>
+      <div class="help-tab" onclick="switchTab('platforms', this)">PLATFORMS</div>
+    </div>
+
+    <!-- QUICK START TAB -->
+    <div class="help-content" id="tab-quickstart">
+      <div class="help-section">
+        <div class="help-section-title">Getting Started</div>
+        <div class="quickstart-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Choose a preset or enter a URL</div>
+            <div class="step-desc">Click a platform on the left (Facebook, Instagram, etc.) to auto-fill the URL and selector fields. Or type any website URL directly.</div>
+          </div>
+        </div>
+        <div class="quickstart-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Set your date range (optional)</div>
+            <div class="step-desc">Enter a year like <strong>2024</strong> or a full date like <strong>2024-06-15</strong> to only download files from that period.</div>
+          </div>
+        </div>
+        <div class="quickstart-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Pick what to download</div>
+            <div class="step-desc">Check the content types you need. For gallery migrations, <strong>Images</strong> is usually all you need.</div>
+          </div>
+        </div>
+        <div class="quickstart-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Choose your save folder</div>
+            <div class="step-desc">Click <strong>BROWSE</strong> to pick where downloaded files go. Create a new folder per client.</div>
+          </div>
+        </div>
+        <div class="quickstart-step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Hit START SCRAPE</div>
+            <div class="step-desc">Watch the results table and log fill up. You can pause or stop at any time.</div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">For Facebook & Instagram</div>
+        <div class="quickstart-step">
+          <div class="step-num" style="background:var(--tip)">★</div>
+          <div class="step-body">
+            <div class="step-title">Use Session Cookies to unlock social media</div>
+            <div class="step-desc">Facebook and Instagram block scraping by default. Enable <strong>Use session cookies</strong> in the Session Cookies card, paste your cookies, and the scraper works as if you're logged in. Click <strong>HOW TO GET COOKIES</strong> for the full guide.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Tips for Best Results</div>
+        <div class="help-tip tip-purple">
+          <strong>Facebook & Instagram getting 403?</strong> Enable the Session Cookies card and paste your browser cookies. This tells the site you're a logged-in user, not a bot.
+        </div>
+        <div class="help-tip tip-green">
+          <strong>Start with a small Max Files number</strong> (like 20) to test the scrape first, then increase once you confirm it's finding the right images.
+        </div>
+        <div class="help-tip tip-blue">
+          <strong>Folder per client.</strong> Always set a unique output folder for each client migration so files don't mix together.
+        </div>
+        <div class="help-tip tip-warn">
+          <strong>Rate limiting.</strong> Some sites block rapid requests. If you get errors, increase the <strong>Delay</strong> to 1–2 seconds.
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="help-content" id="tab-settings" style="display:none">
+      <div class="help-section">
+        <div class="help-section-title">Crawl Options Explained</div>
+
+        <div class="help-setting">
+          <div class="hs-name">Crawl Depth</div>
+          <div class="hs-val">Recommended: 0 for single page, 1–2 for full site</div>
+          <div class="hs-desc">Controls how many links deep the scraper follows. <strong>0</strong> = only the URL you enter. <strong>1</strong> = that page plus all pages it links to. Higher numbers take much longer.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Delay (seconds)</div>
+          <div class="hs-val">Recommended: 0.5s for most sites, 1–2s for social media</div>
+          <div class="hs-desc">Time to wait between each download request. A small delay is polite to servers and prevents your IP from being blocked. <strong>Never set to 0</strong> on social media sites.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Max Files</div>
+          <div class="hs-val">Recommended: Start at 50, increase as needed</div>
+          <div class="hs-desc">Hard stop after downloading this many files. Prevents accidentally downloading thousands of files. Increase once you've confirmed the scrape is working correctly.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Timeout (seconds)</div>
+          <div class="hs-val">Recommended: 10–15 seconds</div>
+          <div class="hs-desc">How long to wait for a slow server to respond before giving up and moving on. Increase to 20–30 if scraping slow international sites.</div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Toggle Options Explained</div>
+
+        <div class="help-setting">
+          <div class="hs-name">Follow same-domain links</div>
+          <div class="hs-val">Default: OFF</div>
+          <div class="hs-desc">When ON, the scraper crawls additional pages on the same website. Only enable with a Crawl Depth of 1–2 and a reasonable Max Files limit or it will run for a very long time.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Respect robots.txt</div>
+          <div class="hs-val">Default: ON — keep this ON</div>
+          <div class="hs-desc">Websites publish a file telling scrapers which pages to avoid. Leaving this ON keeps your scraping ethical and prevents your IP from being blacklisted.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Deduplicate files</div>
+          <div class="hs-val">Default: ON — recommended to keep ON</div>
+          <div class="hs-desc">Skips files that have already been downloaded, even if they appear under different URLs. Prevents your folder filling up with identical copies of the same image.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Preserve directory structure</div>
+          <div class="hs-val">Default: ON</div>
+          <div class="hs-desc">Recreates the website's folder structure in your output directory. Makes it easy to trace where each file came from. Turn OFF if you want all files in a single flat folder.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">JS rendering mode</div>
+          <div class="hs-val">Default: OFF — requires extra setup</div>
+          <div class="hs-desc">Some websites (like Wix and modern SPAs) load images using JavaScript. This mode requires Playwright to be installed separately. Contact your developer to set this up.</div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Session Cookies Explained</div>
+
+        <div class="help-tip tip-purple">
+          <strong>What are session cookies?</strong> When you log into Facebook, your browser stores small text files called cookies that prove you're logged in. By copying and pasting these into ROM Scraper, the scraper sends them with every request — so Facebook thinks it's you browsing normally.
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">When to use it</div>
+          <div class="hs-val">Facebook, Instagram, Twitter, any site that blocks you with a 403 error</div>
+          <div class="hs-desc">If the activity log shows <strong>HTTP 403</strong> errors, that means the site is blocking you. Enable session cookies and paste yours to fix this immediately.</div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">How to copy your cookies (Chrome)</div>
+          <div class="hs-val">Takes about 60 seconds</div>
+          <div class="hs-desc">
+            1. Log into Facebook (or Instagram) in Chrome<br>
+            2. Press <strong>F12</strong> to open DevTools<br>
+            3. Click the <strong>Application</strong> tab at the top<br>
+            4. On the left, click <strong>Cookies → facebook.com</strong><br>
+            5. Find cookies named <strong>c_user</strong>, <strong>xs</strong>, <strong>datr</strong>, <strong>fr</strong><br>
+            6. Copy each name and value in the format: <strong>name=value; name=value</strong><br>
+            7. Paste the full string into the Cookie String box
+          </div>
+        </div>
+
+        <div class="help-setting">
+          <div class="hs-name">Easier method — EditThisCookie extension</div>
+          <div class="hs-val">Recommended for non-technical team members</div>
+          <div class="hs-desc">Install the free <strong>EditThisCookie</strong> Chrome extension. Log into Facebook, click the extension icon, then click the Export button (looks like a box with an arrow). It copies all cookies as a formatted string — paste directly into ROM Scraper.</div>
+        </div>
+
+        <div class="help-tip tip-warn">
+          <strong>Keep your cookies private.</strong> Cookies are like a temporary password. Don't share them with anyone or paste them anywhere other than ROM Scraper. They expire after a few weeks automatically.
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Activity Log Colors</div>
+        <div class="help-tip tip-blue"><strong style="color:var(--info)">SCAN</strong> — Currently scanning a page for assets</div>
+        <div class="help-tip tip-green"><strong style="color:var(--success)">OK</strong> — File downloaded successfully</div>
+        <div class="help-tip tip-warn"><strong style="color:var(--warning)">WARN</strong> — Skipped or rate limited</div>
+        <div class="help-tip"><strong style="color:var(--error)">ERR</strong> — Failed to download (403, timeout, etc.)</div>
+        <div class="help-tip tip-purple"><strong style="color:var(--tip)">SKIP</strong> — Filtered out by date or deduplication</div>
+      </div>
+    </div>
+
+    <!-- PLATFORMS TAB -->
+    <div class="help-content" id="tab-platforms" style="display:none">
+      <div class="help-section">
+        <div class="help-section-title">Platform Notes</div>
+
+        <div class="platform-card">
+          <div class="pc-name">Facebook</div>
+          <div class="pc-note">Facebook blocks scraping by default and returns 403 errors. <strong>Enable Session Cookies</strong> in the cookies card and paste your Facebook cookies to scrape as a logged-in user. Go to the page's Photos tab and copy that URL. Works on any public or private page your account can see.</div>
+          <div class="pc-tag"><span class="help-badge purple">NEEDS COOKIES</span><span class="help-badge green">PHOTOS TAB URL</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Instagram</div>
+          <div class="pc-note">Like Facebook, Instagram blocks anonymous requests. <strong>Enable Session Cookies</strong> and paste your Instagram cookies for reliable scraping. Use the profile URL. Set delay to 2+ seconds — Instagram is the most aggressive at rate limiting.</div>
+          <div class="pc-tag"><span class="help-badge purple">NEEDS COOKIES</span><span class="help-badge blue">DELAY 2s+</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Twitter / X</div>
+          <div class="pc-note">Use the /media tab URL for the best image results. Example: twitter.com/username/media. Works on public accounts.</div>
+          <div class="pc-tag"><span class="help-badge">PUBLIC ONLY</span><span class="help-badge green">MEDIA TAB</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">WordPress Sites</div>
+          <div class="pc-note">Most client websites run WordPress. Enter the gallery page URL directly. Set Crawl Depth to 1 to catch images across multiple gallery pages. Works very reliably.</div>
+          <div class="pc-tag"><span class="help-badge green">RELIABLE</span><span class="help-badge blue">DEPTH 1</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Squarespace</div>
+          <div class="pc-note">Works well on public portfolio and gallery pages. Use the gallery page URL. Images are usually high resolution.</div>
+          <div class="pc-tag"><span class="help-badge green">RELIABLE</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Wix</div>
+          <div class="pc-note">Wix loads images dynamically via JavaScript. Standard scraping may miss some images. Enable JS rendering mode for best results, or use Depth 1 to catch more pages.</div>
+          <div class="pc-tag"><span class="help-badge tip-warn">NEEDS JS MODE</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Shopify</div>
+          <div class="pc-note">Product images are usually high quality. Use the /collections/ or /products/ page URL to target specific image sets. Works reliably on public stores.</div>
+          <div class="pc-tag"><span class="help-badge green">RELIABLE</span><span class="help-badge blue">PRODUCTS PAGE</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Pinterest</div>
+          <div class="pc-note">Works on public boards. Paste the board URL. Pinterest uses infinite scroll so only visible images at page load are captured. Set delay to 1s.</div>
+          <div class="pc-tag"><span class="help-badge">PUBLIC BOARDS</span><span class="help-badge blue">DELAY 1s</span></div>
+        </div>
+
+        <div class="platform-card">
+          <div class="pc-name">Custom URL</div>
+          <div class="pc-note">Use for any site not in the presets. Leave the CSS selector blank to grab all images, or enter a specific selector if you know the page's HTML structure.</div>
+          <div class="pc-tag"><span class="help-badge purple">MANUAL</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ STATUS BAR ══ -->
+<div class="statusbar">
+  <div class="status-dot" id="statusDot"></div>
+  <span class="status-txt" id="statusTxt">READY</span>
+  <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+  <div class="stat-chip"><span class="sv" id="statFound">0</span><span class="sl">Found</span></div>
+  <div class="stat-chip"><span class="sv green" id="statDL">0</span><span class="sl">Downloaded</span></div>
+  <div class="stat-chip"><span class="sv red" id="statErr">0</span><span class="sl">Errors</span></div>
+  <div class="stat-chip"><span class="sv" id="statSize">0 B</span><span class="sl">Total Size</span></div>
+  <div class="stat-chip"><span class="sv" id="statElapsed">00:00</span><span class="sl">Elapsed</span></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   PRESETS DATA
+═══════════════════════════════════════════════ */
+const PRESETS = [
+  { name: 'Facebook',    icon: 'f',  url: 'https://www.facebook.com/[page]/photos', selector: 'img[src*="fbcdn"]',    notes: 'Public pages. Go to Photos tab.' },
+  { name: 'Instagram',   icon: 'in', url: 'https://www.instagram.com/[username]/', selector: 'img._aagt',              notes: 'Public profiles. Set delay 2s+.' },
+  { name: 'Twitter / X', icon: 'x',  url: 'https://twitter.com/[user]/media',      selector: 'img[src*="media"]',     notes: 'Use /media tab URL.' },
+  { name: 'Pinterest',   icon: 'p',  url: 'https://www.pinterest.com/[user]/[board]/', selector: 'img.GrowthUnauthPinImage', notes: 'Public boards.' },
+  { name: 'Flickr',      icon: 'fl', url: 'https://www.flickr.com/photos/[user]/', selector: 'img.photo-list-photo-img', notes: 'Excellent photo structure.' },
+  { name: 'Tumblr',      icon: 't',  url: 'https://[blog].tumblr.com',             selector: 'img.photo-img',          notes: 'Photo-type posts.' },
+  { name: 'Reddit',      icon: 'r',  url: 'https://www.reddit.com/r/[subreddit]/', selector: 'img.media-element',      notes: 'Gallery posts.' },
+  { name: 'Squarespace', icon: 'sq', url: 'https://[site].squarespace.com',        selector: 'img.loaded',             notes: 'Gallery & portfolio pages.' },
+  { name: 'WordPress',   icon: 'wp', url: 'https://[site].com',                    selector: 'img.wp-post-image',      notes: 'Most client sites. Depth 1.' },
+  { name: 'Wix',         icon: 'wx', url: 'https://[site].wixsite.com/[name]',     selector: 'img.WixExpIm',           notes: 'Enable JS mode for full results.' },
+  { name: 'Shopify',     icon: 'sh', url: 'https://[store].myshopify.com',         selector: 'img.product__image',     notes: 'Product & collection pages.' },
+  { name: 'Custom URL',  icon: '+',  url: '',                                       selector: '',                       notes: 'Any custom URL.' },
+];
+
+let activePreset = -1;
+
+function buildPresets() {
+  const list = document.getElementById('presetList');
+  PRESETS.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'preset-item';
+    el.dataset.index = i;
+    el.innerHTML = `<div class="preset-icon">${p.icon}</div><span class="preset-name">${p.name}</span>`;
+    el.onclick = () => selectPreset(i);
+    list.appendChild(el);
+  });
+}
+
+function selectPreset(i) {
+  document.querySelectorAll('.preset-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.preset-item')[i].classList.add('active');
+  activePreset = i;
+  const p = PRESETS[i];
+  if (p.url) document.getElementById('urlInput').value = p.url;
+  if (p.selector) document.getElementById('selectorInput').value = p.selector;
+  addLog('PRESET', `Preset loaded: ${p.name} — ${p.notes}`, 'lvl-preset');
+}
+
+/* ═══════════════════════════════════════════════
+   HELP TABS
+═══════════════════════════════════════════════ */
+function switchTab(name, el) {
+  document.querySelectorAll('.help-content').forEach(c => c.style.display = 'none');
+  document.querySelectorAll('.help-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).style.display = 'block';
+  el.classList.add('active');
+}
+
+function toggleCookiesPanel() {
+  const on = document.getElementById('flagCookies').classList.contains('on');
+  document.getElementById('cookiesPanel').style.display = on ? 'block' : 'none';
+}
+
+function switchCookieFields() {
+  const p = document.getElementById('cookiePlatform').value;
+  document.querySelectorAll('.cookie-fields').forEach(f => f.style.display = 'none');
+  document.getElementById('cookieFields-' + p).style.display = 'block';
+}
+
+function addCustomRow() {
+  const container = document.getElementById('customCookieRows');
+  const row = document.createElement('div');
+  row.className = 'cookie-field-row custom-row';
+  row.style.cssText = 'display:flex;align-items:center;gap:0;margin-bottom:6px';
+  row.innerHTML = `
+    <input class="inp" style="width:120px;flex-shrink:0;font-size:11px" placeholder="cookie name" spellcheck="false">
+    <span style="color:var(--text-dim);padding:0 6px;font-size:13px;align-self:center">=</span>
+    <input class="inp" style="flex:1;font-size:11px" placeholder="cookie value" spellcheck="false">
+    <button onclick="removeCustomRow(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:0 4px;align-self:center">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function removeCustomRow(btn) {
+  const rows = document.querySelectorAll('#customCookieRows .custom-row');
+  if (rows.length > 1) btn.closest('.custom-row').remove();
+}
+
+function buildCookieString() {
+  const p = document.getElementById('cookiePlatform').value;
+  const pairs = [];
+
+  if (p === 'custom') {
+    document.querySelectorAll('#customCookieRows .custom-row').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const k = inputs[0].value.trim();
+      const v = inputs[1].value.trim();
+      if (k && v) pairs.push(`${k}=${v}`);
+    });
+  } else {
+    document.querySelectorAll(`#cookieFields-${p} .cookie-val`).forEach(inp => {
+      const v = inp.value.trim();
+      if (v) pairs.push(`${inp.dataset.key}=${v}`);
+    });
+  }
+
+  return pairs.join('; ');
+}
+
+const COOKIE_HINTS = {};
+
+const COOKIE_GUIDES = {
+  facebook: `
+    <div style="font-size:11px;color:var(--text-sec);line-height:1.8">
+      <div style="color:var(--text-pri);font-weight:700;margin-bottom:10px">How to find each value in Chrome</div>
+      <div style="background:var(--bg-input);border-radius:6px;padding:12px;margin-bottom:12px">
+        <div>1. Go to <strong>facebook.com</strong> in Chrome while logged in</div>
+        <div>2. Press <strong>F12</strong> to open DevTools</div>
+        <div>3. Click the <strong>Application</strong> tab at the top of DevTools</div>
+        <div>4. On the left: expand <strong>Cookies</strong> → click <strong>https://www.facebook.com</strong></div>
+        <div>5. In the table, find each cookie by name and copy its <strong>Value</strong> column</div>
+        <div style="margin-top:10px;color:var(--text-dim)">The cookies you need:</div>
+        <div style="margin:6px 0 0 10px;line-height:2">
+          <span style="color:var(--accent);font-weight:700">c_user</span> — a long number (your user ID)<br>
+          <span style="color:var(--accent);font-weight:700">xs</span> — letters and numbers with % symbols<br>
+          <span style="color:var(--accent);font-weight:700">datr</span> — a shorter string of letters/numbers<br>
+          <span style="color:var(--accent);font-weight:700">fr</span> — starts with numbers and letters
+        </div>
+      </div>
+      <div style="color:var(--warning);font-size:10px">⚠ Keep these values private — they act like a temporary password to your account.</div>
+    </div>`,
+  instagram: `
+    <div style="font-size:11px;color:var(--text-sec);line-height:1.8">
+      <div style="color:var(--text-pri);font-weight:700;margin-bottom:10px">How to find each value in Chrome</div>
+      <div style="background:var(--bg-input);border-radius:6px;padding:12px">
+        <div>1. Go to <strong>instagram.com</strong> in Chrome while logged in</div>
+        <div>2. Press <strong>F12</strong> → click <strong>Application</strong> tab</div>
+        <div>3. Left sidebar: <strong>Cookies → https://www.instagram.com</strong></div>
+        <div>4. Find and copy the Value for each cookie name</div>
+        <div style="margin-top:10px;color:var(--text-dim)">The cookies you need:</div>
+        <div style="margin:6px 0 0 10px;line-height:2">
+          <span style="color:var(--accent);font-weight:700">sessionid</span> — long string with % symbols<br>
+          <span style="color:var(--accent);font-weight:700">csrftoken</span> — 32 character string<br>
+          <span style="color:var(--accent);font-weight:700">ds_user_id</span> — a number (your user ID)
+        </div>
+        <div style="margin-top:10px;color:var(--warning)">⚠ Set Delay to 2+ seconds — Instagram rate-limits aggressively.</div>
+      </div>
+    </div>`,
+  twitter: `
+    <div style="font-size:11px;color:var(--text-sec);line-height:1.8">
+      <div style="color:var(--text-pri);font-weight:700;margin-bottom:10px">How to find each value in Chrome</div>
+      <div style="background:var(--bg-input);border-radius:6px;padding:12px">
+        <div>1. Go to <strong>twitter.com</strong> in Chrome while logged in</div>
+        <div>2. Press <strong>F12</strong> → click <strong>Application</strong> tab</div>
+        <div>3. Left sidebar: <strong>Cookies → https://twitter.com</strong></div>
+        <div>4. Find and copy the Value for each cookie name</div>
+        <div style="margin-top:10px;color:var(--text-dim)">The cookies you need:</div>
+        <div style="margin:6px 0 0 10px;line-height:2">
+          <span style="color:var(--accent);font-weight:700">auth_token</span> — 40 character hex string<br>
+          <span style="color:var(--accent);font-weight:700">ct0</span> — 32 character string<br>
+          <span style="color:var(--accent);font-weight:700">twid</span> — starts with u%3D then numbers
+        </div>
+      </div>
+    </div>`,
+  custom: `
+    <div style="font-size:11px;color:var(--text-sec);line-height:1.8">
+      <div style="background:var(--bg-input);border-radius:6px;padding:12px">
+        <div>1. Open the site in Chrome and log in</div>
+        <div>2. Press <strong>F12</strong> → <strong>Application</strong> tab</div>
+        <div>3. Expand <strong>Cookies</strong> → click your site's domain</div>
+        <div>4. Copy the Name and Value of any session/auth cookies</div>
+        <div>5. Add each one using the + ADD ANOTHER COOKIE button</div>
+        <div style="margin-top:8px;color:var(--tip)">💡 Look for cookie names containing: session, token, auth, sid, login</div>
+      </div>
+    </div>`
+};
+
+function showCookieGuide() {
+  const p = document.getElementById('cookiePlatform').value;
+  document.getElementById('cookieGuideContent').innerHTML = COOKIE_GUIDES[p] || COOKIE_GUIDES.custom;
+  document.getElementById('cookieGuideModal').style.display = 'flex';
+}
+function hideCookieGuide() {
+  document.getElementById('cookieGuideModal').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════════
+   CONTENT TYPE TOGGLES
+═══════════════════════════════════════════════ */
+function toggleCT(el) {
+  el.classList.toggle('on');
+  el.querySelector('.chk').textContent = el.classList.contains('on') ? '✓' : '';
+}
+
+function toggleFlag(el) { el.classList.toggle('on'); }
+
+/* ═══════════════════════════════════════════════
+   BROWSE DIRECTORY
+═══════════════════════════════════════════════ */
+async function browseDir() {
+  const dir = await window.romAPI.browseDirectory();
+  if (dir) document.getElementById('outputDir').value = dir;
+}
+
+function openOutputFolder() {
+  const dir = document.getElementById('outputDir').value;
+  if (dir) window.romAPI.openFolder(dir);
+}
+
+/* ═══════════════════════════════════════════════
+   LOG
+═══════════════════════════════════════════════ */
+function addLog(level, msg, cls = 'lvl-info') {
+  const ts = new Date().toTimeString().split(' ')[0];
+  const body = document.getElementById('logBody');
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  const pad = level.padEnd(5);
+  line.innerHTML = `<span class="log-ts">${ts}</span><span class="log-lvl ${cls}">${pad}</span><span class="log-msg">${escHtml(msg)}</span>`;
+  body.appendChild(line);
+  body.scrollTop = body.scrollHeight;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearLog() { document.getElementById('logBody').innerHTML = ''; }
+
+async function saveLog() {
+  const lines = [...document.querySelectorAll('.log-line')].map(l => l.textContent).join('\n');
+  const ok = await window.romAPI.saveLog(lines);
+  if (ok) addLog('OK', 'Log saved successfully.', 'lvl-ok');
+}
+
+/* ═══════════════════════════════════════════════
+   RESULTS TABLE
+═══════════════════════════════════════════════ */
+let resultRows = [];
+
+function addResult(row) {
+  const body = document.getElementById('resultsBody');
+  const statusIcon = row.status === 'ok' ? '<span class="td-status-ok">✓</span>'
+                  : row.status === 'error' ? '<span class="td-status-err">✗</span>'
+                  : '<span class="td-status-dl">◌</span>';
+
+  // Check if row for this URL already exists (update downloading → done)
+  const existing = body.querySelector(`tr[data-url="${CSS.escape(row.url)}"]`);
+  if (existing && row.status !== 'downloading') {
+    existing.querySelector('td:first-child').innerHTML = statusIcon;
+    existing.querySelector('.td-fn').textContent   = row.filename;
+    existing.querySelector('.td-type').textContent = row.type;
+    existing.cells[3].textContent = row.size;
+    existing.cells[4].textContent = row.date;
+    return;
+  }
+
+  const tr = document.createElement('tr');
+  tr.dataset.url = row.url;
+  tr.innerHTML = `
+    <td>${statusIcon}</td>
+    <td class="td-fn">${escHtml(row.filename)}</td>
+    <td class="td-type">${escHtml(row.type)}</td>
+    <td>${escHtml(row.size)}</td>
+    <td>${escHtml(row.date)}</td>
+    <td class="td-url" title="${escHtml(row.url)}">${escHtml(row.url)}</td>
+  `;
+  tr.onclick = () => { document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('sel')); tr.classList.add('sel'); };
+  body.insertBefore(tr, body.firstChild);
+
+  if (row.status !== 'downloading') resultRows.push(row);
+}
+
+function clearResults() {
+  document.getElementById('resultsBody').innerHTML = '';
+  resultRows = [];
+}
+
+/* ═══════════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════════ */
+async function exportCSV() {
+  const rows = await window.romAPI.getResults();
+  if (!rows.length) { addLog('WARN', 'No results to export yet.', 'lvl-warn'); return; }
+  const header = 'Filename,Type,Size,Date,Source URL\n';
+  const csv = header + rows.map(r => `"${r.filename}","${r.type}","${r.size}","${r.date}","${r.url}"`).join('\n');
+  const ok = await window.romAPI.exportCsv(csv);
+  if (ok) addLog('OK', 'Results exported to CSV.', 'lvl-ok');
+}
+
+async function exportJSON() {
+  const rows = await window.romAPI.getResults();
+  if (!rows.length) { addLog('WARN', 'No results to export yet.', 'lvl-warn'); return; }
+  const ok = await window.romAPI.exportJson(JSON.stringify(rows, null, 2));
+  if (ok) addLog('OK', 'Results exported to JSON.', 'lvl-ok');
+}
+
+/* ═══════════════════════════════════════════════
+   STATUS BAR
+═══════════════════════════════════════════════ */
+let elapsedTimer = null, elapsed = 0;
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+function setStatus(txt, active = false, error = false) {
+  document.getElementById('statusTxt').textContent = txt;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (active ? ' active' : '') + (error ? ' error' : '');
+}
+
+function updateStats({ found = 0, downloaded = 0, errors = 0, totalBytes = 0, pct = 0 } = {}) {
+  document.getElementById('statFound').textContent = found;
+  document.getElementById('statDL').textContent    = downloaded;
+  document.getElementById('statErr').textContent   = errors;
+  document.getElementById('statSize').textContent  = formatBytes(totalBytes);
+  document.getElementById('progFill').style.width  = pct + '%';
+}
+
+/* ═══════════════════════════════════════════════
+   SCRAPING CONTROLS
+═══════════════════════════════════════════════ */
+function getConfig() {
+  const ct = t => document.querySelector(`.ct-item[data-type="${t}"]`)?.classList.contains('on');
+  return {
+    url:          document.getElementById('urlInput').value.trim(),
+    dateFrom:     document.getElementById('dateFrom').value.trim(),
+    dateTo:       document.getElementById('dateTo').value.trim(),
+    selector:     document.getElementById('selectorInput').value.trim(),
+    outputDir:    document.getElementById('outputDir').value.trim(),
+    maxDepth:     parseInt(document.getElementById('maxDepth').value) || 0,
+    delay:        parseFloat(document.getElementById('delay').value) || 0.5,
+    maxFiles:     parseInt(document.getElementById('maxFiles').value) || 200,
+    timeout:      parseInt(document.getElementById('timeout').value) || 10,
+    followLinks:  document.getElementById('flagFollowLinks').classList.contains('on'),
+    respectRobots:document.getElementById('flagRobots').classList.contains('on'),
+    jsMode:       document.getElementById('flagJS').classList.contains('on'),
+    deduplicate:  document.getElementById('flagDedup').classList.contains('on'),
+    preserveDir:  document.getElementById('flagStructure').classList.contains('on'),
+    metadata:     document.getElementById('flagMeta').classList.contains('on'),
+    typeImages:   ct('images'),
+    typeVideos:   ct('videos'),
+    typeDocs:     ct('docs'),
+    typeAudio:    ct('audio'),
+    typeHtml:     ct('html'),
+    typeCssJs:    ct('cssjs'),
+    typeFonts:    ct('fonts'),
+    typeAll:      ct('all'),
+    useCookies:   document.getElementById('flagCookies').classList.contains('on'),
+    cookies:      buildCookieString(),
+  };
+}
+
+async function startScrape() {
+  const cfg = getConfig();
+  if (!cfg.url || cfg.url.length < 4) {
+    addLog('ERR', 'Please enter a valid URL before starting.', 'lvl-err');
+    return;
+  }
+  if (!cfg.outputDir) {
+    addLog('ERR', 'Please set an output directory first.', 'lvl-err');
+    return;
+  }
+
+  clearResults();
+  document.getElementById('scrapeBtn').disabled = true;
+  document.getElementById('pauseBtn').disabled  = false;
+  document.getElementById('stopBtn').disabled   = false;
+  setStatus('SCANNING', true);
+  updateStats();
+
+  elapsed = 0;
+  elapsedTimer = setInterval(() => {
+    elapsed++;
+    const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+    const s = String(elapsed%60).padStart(2,'0');
+    document.getElementById('statElapsed').textContent = `${m}:${s}`;
+  }, 1000);
+
+  addLog('START', `Starting scrape → ${cfg.url}`, 'lvl-start');
+  await window.romAPI.startScrape(cfg);
+}
+
+let paused = false;
+function pauseScrape() {
+  paused = !paused;
+  window.romAPI.pauseScrape();
+  document.getElementById('pauseBtn').textContent = paused ? '▶  RESUME' : '⏸  PAUSE';
+  setStatus(paused ? 'PAUSED' : 'SCANNING', !paused);
+  addLog('INFO', paused ? 'Scrape paused.' : 'Scrape resumed.', 'lvl-info');
+}
+
+function stopScrape() {
+  window.romAPI.stopScrape();
+  finishUp(true);
+}
+
+function finishUp(stopped = false) {
+  clearInterval(elapsedTimer);
+  paused = false;
+  document.getElementById('scrapeBtn').disabled = false;
+  document.getElementById('pauseBtn').disabled  = true;
+  document.getElementById('stopBtn').disabled   = true;
+  document.getElementById('pauseBtn').textContent = '⏸  PAUSE';
+  setStatus(stopped ? 'STOPPED' : 'DONE');
+}
+
+/* ═══════════════════════════════════════════════
+   IPC EVENTS FROM MAIN PROCESS
+═══════════════════════════════════════════════ */
+const LVL_MAP = {
+  START:'lvl-start', INFO:'lvl-info', SCAN:'lvl-scan',
+  OK:'lvl-ok', WARN:'lvl-warn', ERR:'lvl-err',
+  SKIP:'lvl-skip', DONE:'lvl-done', PRESET:'lvl-preset',
+};
+
+window.romAPI.onLog(({ level, msg, ts }) => {
+  addLog(level, msg, LVL_MAP[level] || 'lvl-info');
+});
+
+window.romAPI.onResult(row => {
+  addResult(row);
+});
+
+window.romAPI.onProgress(({ pct, found, downloaded, errors, totalBytes }) => {
+  updateStats({ found, downloaded, errors, totalBytes, pct });
+});
+
+window.romAPI.onComplete(({ downloaded, errors }) => {
+  finishUp(false);
+  addLog('DONE', `Complete — ${downloaded} downloaded, ${errors} errors.`, 'lvl-done');
+  document.getElementById('progFill').style.width = '100%';
+});
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+buildPresets();
+addLog('INFO', 'ROM Scraper v1.0 ready. Select a preset or enter a URL.', 'lvl-info');
+addLog('INFO', 'Check the QUICK START tab on the right for guidance.', 'lvl-info');
+
+// Default output dir
+document.getElementById('outputDir').value = '';
+</script>
+</body>
+</html>

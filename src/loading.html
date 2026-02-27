@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'">
+<title>ROM SCRAPER</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #0A0B0F;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  font-family: 'IBM Plex Mono', monospace;
+  user-select: none;
+}
+
+/* ── Particles background ── */
+.particles {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 77, 46, 0.12);
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-20px) scale(1.2); opacity: 0; }
+}
+
+/* ── Outer ring orbits ── */
+.scene {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1;
+}
+
+.orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  animation: spin linear infinite;
+}
+
+.orbit-1 {
+  width: 300px; height: 300px;
+  border-color: rgba(255,77,46,0.15);
+  animation-duration: 8s;
+}
+.orbit-2 {
+  width: 240px; height: 240px;
+  border-color: rgba(255,77,46,0.1);
+  animation-duration: 6s;
+  animation-direction: reverse;
+}
+.orbit-3 {
+  width: 180px; height: 180px;
+  border-color: rgba(255,77,46,0.2);
+  animation-duration: 4s;
+}
+
+/* Dots on orbits */
+.orbit::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px;
+  background: var(--accent, #FF4D2E);
+  border-radius: 50%;
+  top: -3px; left: 50%;
+  margin-left: -3px;
+  box-shadow: 0 0 10px #FF4D2E, 0 0 20px #FF4D2E;
+}
+
+.orbit-2::after { background: rgba(255,77,46,0.6); box-shadow: 0 0 8px #FF4D2E; }
+.orbit-3::after { width: 5px; height: 5px; top: -2.5px; margin-left: -2.5px; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Central logo ── */
+.logo-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 20px;
+  animation: logoIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes logoIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.logo-box {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow:
+    0 0 40px rgba(255,77,46,0.5),
+    0 0 80px rgba(255,77,46,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(255,77,46,0.5), 0 0 80px rgba(255,77,46,0.2); transform: scale(1); }
+  50%       { box-shadow: 0 0 60px rgba(255,77,46,0.7), 0 0 120px rgba(255,77,46,0.35); transform: scale(1.04); }
+}
+
+.logo-text {
+  font-size: 28px; font-weight: 700;
+  color: #fff; letter-spacing: -1px;
+}
+
+.brand-block { text-align: center; }
+.brand-name {
+  font-size: 18px; font-weight: 700;
+  letter-spacing: 6px; color: #F0F2FF;
+  text-transform: uppercase;
+}
+.brand-sub {
+  font-size: 9px; letter-spacing: 4px;
+  color: #FF4D2E; text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── Progress dots ── */
+.dots-wrap {
+  display: flex; gap: 7px; margin-top: 4px;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,77,46,0.25);
+  animation: dotPulse 1.4s ease-in-out infinite;
+}
+.dot:nth-child(1) { animation-delay: 0s; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+.dot:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes dotPulse {
+  0%, 80%, 100% { background: rgba(255,77,46,0.2); transform: scale(1); }
+  40%            { background: #FF4D2E; transform: scale(1.4); box-shadow: 0 0 8px #FF4D2E; }
+}
+
+/* ── Status text ── */
+.status-text {
+  font-size: 9px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  animation: statusFade 0.5s ease;
+}
+
+/* ── Exit animation (triggered by JS) ── */
+body.exiting {
+  animation: exitFade 0.5s ease forwards;
+}
+@keyframes exitFade {
+  to { opacity: 0; transform: scale(1.05); }
+}
+
+/* ── Scan line effect ── */
+.scanline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,77,46,0.4), transparent);
+  animation: scanMove 3s linear infinite;
+  pointer-events: none; z-index: 0;
+}
+@keyframes scanMove {
+  from { top: 0; }
+  to   { top: 100vh; }
+}
+
+/* ── Corner accents ── */
+.corner {
+  position: fixed;
+  width: 20px; height: 20px;
+  border-color: rgba(255,77,46,0.2);
+  border-style: solid;
+}
+.corner-tl { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
+.corner-tr { top: 16px; right: 16px; border-width: 1px 1px 0 0; }
+.corner-bl { bottom: 16px; left: 16px; border-width: 0 0 1px 1px; }
+.corner-br { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+
+/* ── Version badge ── */
+.version {
+  position: fixed; bottom: 20px;
+  font-size: 8px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.1);
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- Background effects -->
+<div class="particles" id="particles"></div>
+<div class="scanline"></div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- Main scene -->
+<div class="scene">
+  <div class="orbit orbit-1"></div>
+  <div class="orbit orbit-2"></div>
+  <div class="orbit orbit-3"></div>
+
+  <div class="logo-wrap">
+    <div class="logo-box">
+      <span class="logo-text">RS</span>
+    </div>
+    <div class="brand-block">
+      <div class="brand-name">ROM SCRAPER</div>
+      <div class="brand-sub">Web Scraping Toolbox</div>
+    </div>
+    <div class="dots-wrap">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="status-text" id="statusText">Initializing</div>
+  </div>
+</div>
+
+<div class="version">v1.0.0 — Electron Edition</div>
+
+<script>
+// ── Spawn floating particles ──
+const container = document.getElementById('particles');
+for (let i = 0; i < 25; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 14 + 4;
+  p.style.cssText = `
+    width: ${size}px;
+    height: ${size}px;
+    left: ${Math.random() * 100}%;
+    animation-duration: ${Math.random() * 8 + 6}s;
+    animation-delay: ${Math.random() * 8}s;
+    opacity: ${Math.random() * 0.4 + 0.05};
+  `;
+  container.appendChild(p);
+}
+
+// ── Cycle status messages ──
+const messages = ['Initializing', 'Loading modules', 'Starting engine', 'Preparing UI', 'Almost ready'];
+let msgIdx = 0;
+const statusEl = document.getElementById('statusText');
+
+const msgInterval = setInterval(() => {
+  msgIdx = (msgIdx + 1) % messages.length;
+  statusEl.style.opacity = '0';
+  setTimeout(() => {
+    statusEl.textContent = messages[msgIdx];
+    statusEl.style.opacity = '1';
+    statusEl.style.transition = 'opacity 0.3s';
+  }, 150);
+}, 700);
+
+// ── Listen for ready signal from main process ──
+// Main process will close this window after the app loads
+</script>
+</body>
+</html>

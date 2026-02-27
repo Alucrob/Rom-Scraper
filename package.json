@@ -1,0 +1,90 @@
+{
+  "name": "rom-scraper",
+  "version": "1.0.0",
+  "description": "Internal desktop scraping tool for Ryan's Outdoor Media — automates media collection and content migration.",
+  "main": "main.js",
+  "scripts": {
+    "start":     "electron .",
+    "build:win": "electron-builder --win --x64",
+    "build:mac": "electron-builder --mac --x64 --arm64",
+    "build:all": "electron-builder --win --mac --x64",
+    "release":   "electron-builder --win --mac --x64 --publish always"
+  },
+  "build": {
+    "appId": "com.ryansoutdoormedia.rom-scraper",
+    "productName": "ROM Scraper",
+    "copyright": "© 2025 Ryan's Outdoor Media",
+
+    "publish": {
+      "provider": "github",
+      "owner": "Alucrob",
+      "repo": "Rom-Scraper"
+    },
+
+    "files": [
+      "main.js",
+      "src/**/*",
+      "assets/**/*",
+      "version.json",
+      "node_modules/**/*",
+      "!node_modules/puppeteer/.local-chromium/**/*"
+    ],
+
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "ROM-Scraper-Setup-${version}.exe"
+    },
+
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ROM Scraper",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "include": "installer.nsh"
+    },
+
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "assets/icon.png",
+      "artifactName": "ROM-Scraper-${version}.dmg",
+      "category": "public.app-category.productivity",
+      "darkModeSupport": true
+    },
+
+    "dmg": {
+      "title": "ROM Scraper ${version}",
+      "backgroundColor": "#0A0B0F",
+      "window": { "width": 540, "height": 380 },
+      "contents": [
+        { "x": 150, "y": 185, "type": "file" },
+        { "x": 390, "y": 185, "type": "link", "path": "/Applications" }
+      ]
+    },
+
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    }
+  },
+
+  "dependencies": {
+    "electron-updater": "^6.1.7",
+    "puppeteer": "^21.0.0"
+  },
+
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}
