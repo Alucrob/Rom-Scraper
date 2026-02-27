@@ -598,7 +598,7 @@ tbody td { padding: 8px 12px; color: var(--text-sec); white-space: nowrap; overf
       <div class="tb-sub">Web Scraping Toolbox</div>
     </div>
   </div>
-  <div class="tb-center">v1.0.0 — Electron Edition</div>
+  <div class="tb-center" id="tbVersion">v1.0.0 — Electron Edition</div>
   <div class="tb-actions">
     <button class="tb-btn" onclick="openOutputFolder()">📁 OPEN FOLDER</button>
     <button class="tb-btn" onclick="exportCSV()">EXPORT CSV</button>
@@ -615,7 +615,7 @@ tbody td { padding: 8px 12px; color: var(--text-sec); white-space: nowrap; overf
     <div class="preset-list" id="presetList">
       <!-- injected by JS -->
     </div>
-    <div class="sb-footer">ROM SCRAPER v1.0<br>© 2025 All rights reserved</div>
+    <div class="sb-footer" id="sbFooter">ROM SCRAPER v1.0<br>© 2026 All rights reserved</div>
   </div>
 
   <!-- ═══ CENTER — Config ═══ -->
@@ -1549,8 +1549,18 @@ window.romAPI.onComplete(({ downloaded, errors }) => {
 /* ═══════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════ */
+// ── Fetch app version from main process ──
+let appVersion = '1.0.0';
+if (window.romAPI && window.romAPI.getVersion) {
+  window.romAPI.getVersion().then(v => {
+    appVersion = v;
+    document.getElementById('tbVersion').textContent = 'v' + v + ' — Electron Edition';
+    document.getElementById('sbFooter').innerHTML = 'ROM SCRAPER v' + v + '<br>© 2026 All rights reserved';
+  });
+}
+
 buildPresets();
-addLog('INFO', 'ROM Scraper v1.0 ready. Select a preset or enter a URL.', 'lvl-info');
+addLog('INFO', `ROM Scraper v${appVersion} ready. Select a preset or enter a URL.`, 'lvl-info');
 addLog('INFO', 'Check the QUICK START tab on the right for guidance.', 'lvl-info');
 
 // Default output dir
