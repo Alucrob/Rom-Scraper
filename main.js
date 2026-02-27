@@ -37,7 +37,6 @@ function createLoadingWindow() {
     transparent: false,
     resizable: false,
     center: true,
-    backgroundColor: '#0A0B0F',
     webPreferences: { nodeIntegration: false, contextIsolation: true },
     show: false,
   });
@@ -54,7 +53,6 @@ function createUpdaterWindow(currentVersion, updateInfo) {
     frame: false,
     resizable: false,
     center: true,
-    backgroundColor: '#0A0B0F',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -95,7 +93,6 @@ function createWindow() {
     minHeight: 700,
     frame: false,
     titleBarStyle: 'hidden',
-    backgroundColor: '#0A0B0F',
     icon: path.join(__dirname, 'assets', 'icon.ico'),
     webPreferences: {
       nodeIntegration: false,
