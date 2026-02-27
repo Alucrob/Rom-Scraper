@@ -238,7 +238,7 @@ body.exiting {
   </div>
 </div>
 
-<div class="version">v1.0.0 — Electron Edition</div>
+<div class="version" id="versionBadge">Loading...</div>
 
 <script>
 // ── Spawn floating particles ──
@@ -273,8 +273,10 @@ const msgInterval = setInterval(() => {
   }, 150);
 }, 700);
 
-// ── Listen for ready signal from main process ──
-// Main process will close this window after the app loads
+// ── Read version from URL query string (injected by main.js) ──
+const params = new URLSearchParams(window.location.search);
+const version = params.get('version') || '1.0.0';
+document.getElementById('versionBadge').textContent = 'v' + version + ' — Electron Edition';
 </script>
 </body>
 </html>
