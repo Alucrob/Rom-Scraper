@@ -1,4 +1,4 @@
 {
-  "version": "1.0.2",
-  "releaseNotes": "Cross Compatibility Update: Mac & Windows - ROM 2026"
+  "version": "1.0.3",
+  "releaseNotes": "Auto-updater install fix and dynamic version display."
 }
