@@ -49,14 +49,14 @@ jobs:
         run: |
           python3 << 'EOF'
           import os
-          # The specific file causing the crash
+          # Path to the file identified in the error log
           core_file = 'node_modules/dmg-builder/vendor/dmgbuild/core.py'
           
           if os.path.exists(core_file):
               with open(core_file, 'r') as f:
                   content = f.read()
               
-              # We inject a try/except block to catch the hex code parsing error
+              # Targeted patch for the line: c = parseColor(background_color).to_rgb()
               old_line = 'c = parseColor(background_color).to_rgb()'
               new_line = 'try:\n        c = parseColor(background_color).to_rgb()\n    except:\n        c = (10, 11, 15)'
               
