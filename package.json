@@ -1,6 +1,6 @@
 {
   "name": "rom-scraper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Internal desktop scraping tool for Ryan's Outdoor Media — automates media collection and content migration.",
   "main": "main.js",
   "scripts": {
