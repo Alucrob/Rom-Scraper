@@ -166,7 +166,7 @@ function setupAutoUpdater() {
    UPDATER IPC
 ══════════════════════════════════════════ */
 ipcMain.on('install-update', () => {
-  if (autoUpdater) autoUpdater.downloadUpdate();
+  if (autoUpdater) autoUpdater.quitAndInstall();
 });
 
 ipcMain.on('skip-update', () => {
