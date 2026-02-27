@@ -49,20 +49,13 @@
     },
     "mac": {
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] }
+        { "target": "dmg", "arch": ["x64"] },
+        { "target": "dmg", "arch": ["arm64"] }
       ],
       "icon": "assets/icon.png",
-      "artifactName": "ROM-Scraper-${version}.dmg",
+      "artifactName": "ROM-Scraper-${version}-${arch}.dmg",
       "category": "public.app-category.productivity",
       "darkModeSupport": true
-    },
-    "dmg": {
-      "title": "ROM Scraper ${version}",
-      "window": { "width": 540, "height": 380 },
-      "contents": [
-        { "x": 150, "y": 185, "type": "file" },
-        { "x": 390, "y": 185, "type": "link", "path": "/Applications" }
-      ]
     },
     "directories": {
       "output": "dist",
