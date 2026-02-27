@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('romAPI', {
   stopScrape:  ()    => ipcRenderer.send('stop-scrape'),
   getResults:  ()    => ipcRenderer.invoke('get-results'),
 
+  // App info
+  getVersion: () => ipcRenderer.invoke('get-version'),
+
   // Exports
   saveLog:    (txt)  => ipcRenderer.invoke('save-log', txt),
   exportCsv:  (data) => ipcRenderer.invoke('export-csv', data),
