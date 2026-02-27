@@ -41,7 +41,7 @@ function createLoadingWindow() {
     webPreferences: { nodeIntegration: false, contextIsolation: true },
     show: false,
   });
-  loadingWindow.loadFile(path.join(__dirname, 'src', 'loading.html'));
+  loadingWindow.loadFile(path.join(__dirname, 'src', 'loading.html'), { query: { version: app.getVersion() } });
   loadingWindow.once('ready-to-show', () => loadingWindow.show());
 }
 
