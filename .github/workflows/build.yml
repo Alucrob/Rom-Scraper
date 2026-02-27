@@ -20,7 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
       - name: Build Windows installer
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,7 +48,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
       - name: Fix dmg-builder color bug
         run: |
           python3 << 'EOF'
