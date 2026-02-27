@@ -166,7 +166,13 @@ function setupAutoUpdater() {
    UPDATER IPC
 ══════════════════════════════════════════ */
 ipcMain.on('install-update', () => {
-  if (autoUpdater) autoUpdater.quitAndInstall();
+  if (autoUpdater) {
+    autoUpdater.autoInstallOnAppQuit = true;
+    app.removeAllListeners('window-all-closed');
+    if (updaterWindow && !updaterWindow.isDestroyed()) updaterWindow.destroy();
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.destroy();
+    autoUpdater.quitAndInstall(false, true);
+  }
 });
 
 ipcMain.on('skip-update', () => {
