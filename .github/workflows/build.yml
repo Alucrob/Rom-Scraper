@@ -46,19 +46,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Fix dmg-builder color bug
+      - name: Fix dmg background color
         run: |
-          python3 -c "
-          import os
-          for root, dirs, files in os.walk('node_modules/dmg-builder/vendor'):
-              for f in files:
-                  if f.endswith('.py'):
-                      path = os.path.join(root, f)
-                      txt = open(path).read()
-                      if '0A0B0F' in txt:
-                          open(path, 'w').write(txt.replace('#0A0B0F', 'black'))
-                          print('Patched:', path)
-          "
+          grep -rl "0A0B0F" --include="*.py" --include="*.json" --include="*.js" --include="*.html" . | grep -v node_modules | xargs sed -i '' 's/0A0B0F/000000/g'
+          grep -rl "0A0B0F" node_modules/dmg-builder/ | xargs sed -i '' 's/0A0B0F/000000/g'
       - name: Build Mac DMG
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
