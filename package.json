@@ -1,7 +1,7 @@
 {
   "name": "rom-scraper",
   "version": "1.0.3",
-  "description": "Internal desktop scraping tool for Ryan's Outdoor Media \u2014 automates media collection and content migration.",
+  "description": "Internal desktop scraping tool for Ryan's Outdoor Media — automates media collection and content migration.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -13,7 +13,7 @@
   "build": {
     "appId": "com.ryansoutdoormedia.rom-scraper",
     "productName": "ROM Scraper",
-    "copyright": "\u00a9 2025 Ryan's Outdoor Media",
+    "copyright": "© 2025 Ryan's Outdoor Media",
     "publish": {
       "provider": "github",
       "owner": "Alucrob",
@@ -29,12 +29,7 @@
     ],
     "win": {
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
+        { "target": "nsis", "arch": ["x64"] }
       ],
       "icon": "assets/icon.ico",
       "artifactName": "ROM-Scraper-Setup-${version}.exe"
@@ -54,16 +49,11 @@
     },
     "mac": {
       "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
+        { "target": "dmg", "arch": ["x64"] },
+        { "target": "dmg", "arch": ["arm64"] }
       ],
       "icon": "assets/icon.png",
-      "artifactName": "ROM-Scraper-${version}.dmg",
+      "artifactName": "ROM-Scraper-${version}-${arch}.dmg",
       "category": "public.app-category.productivity",
       "darkModeSupport": true
     },
@@ -73,20 +63,6 @@
       "contents": [
         { "x": 150, "y": 185, "type": "file" },
         { "x": 390, "y": 185, "type": "link", "path": "/Applications" }
-      ]
-    },
-      "contents": [
-        {
-          "x": 150,
-          "y": 185,
-          "type": "file"
-        },
-        {
-          "x": 390,
-          "y": 185,
-          "type": "link",
-          "path": "/Applications"
-        }
       ]
     },
     "directories": {
