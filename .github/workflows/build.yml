@@ -2,7 +2,7 @@ name: Build & Release ROM Scraper
 on:
   push:
     tags:
-      - 'v*'   # Triggers on any tag like v1.0.1, v1.2.0 etc.
+      - 'v*'
 jobs:
   # ── Build Windows installer ──────────────────────────
   build-windows:
@@ -26,7 +26,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: dist/ROM-Scraper-Setup-*.exe
+          path: |
+            dist/ROM-Scraper-Setup-*.exe
+            dist/latest.yml
   # ── Build Mac installer ───────────────────────────────
   build-mac:
     runs-on: macos-latest
@@ -49,7 +51,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mac-installer
-          path: dist/ROM-Scraper-*.dmg
+          path: |
+            dist/ROM-Scraper-*.dmg
+            dist/latest-mac.yml
   # ── Create GitHub Release with both installers ────────
   release:
     needs: [build-windows, build-mac]
@@ -85,5 +89,7 @@ jobs:
           files: |
             dist/ROM-Scraper-Setup-*.exe
             dist/ROM-Scraper-*.dmg
+            dist/latest.yml
+            dist/latest-mac.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
