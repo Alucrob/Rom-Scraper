@@ -1549,22 +1549,32 @@ window.romAPI.onComplete(({ downloaded, errors }) => {
 /* ═══════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════ */
-// ── Fetch app version from main process ──
-let appVersion = '1.0.0';
-if (window.romAPI && window.romAPI.getVersion) {
-  window.romAPI.getVersion().then(v => {
-    appVersion = v;
-    document.getElementById('tbVersion').textContent = 'v' + v + ' — Electron Edition';
-    document.getElementById('sbFooter').innerHTML = 'ROM SCRAPER v' + v + '<br>© 2026 All rights reserved';
-  });
+// ── Fetch app version from main process and update ALL version displays ──
+let appVersion = '...';
+
+async function initApp() {
+  // Get real version from main process before doing anything
+  if (window.romAPI && window.romAPI.getVersion) {
+    try {
+      appVersion = await window.romAPI.getVersion();
+    } catch (e) {
+      appVersion = 'unknown';
+    }
+  }
+
+  // Update ALL version displays in the UI
+  document.getElementById('tbVersion').textContent = 'v' + appVersion + ' — Electron Edition';
+  document.getElementById('sbFooter').innerHTML = 'ROM SCRAPER v' + appVersion + '<br>© 2026 All rights reserved';
+
+  buildPresets();
+  addLog('INFO', `ROM Scraper v${appVersion} ready. Select a preset or enter a URL.`, 'lvl-info');
+  addLog('INFO', 'Check the QUICK START tab on the right for guidance.', 'lvl-info');
+
+  // Default output dir
+  document.getElementById('outputDir').value = '';
 }
 
-buildPresets();
-addLog('INFO', `ROM Scraper v${appVersion} ready. Select a preset or enter a URL.`, 'lvl-info');
-addLog('INFO', 'Check the QUICK START tab on the right for guidance.', 'lvl-info');
-
-// Default output dir
-document.getElementById('outputDir').value = '';
+initApp();
 </script>
 </body>
 </html>
