@@ -11,6 +11,7 @@ try {
   autoUpdater = require('electron-updater').autoUpdater;
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.allowDowngrade = false;
   // Point to your GitHub repo
   autoUpdater.setFeedURL({
     provider: 'github',
@@ -26,6 +27,7 @@ try {
 let mainWindow;
 let loadingWindow;
 let updaterWindow;
+let updateDownloaded = false;
 
 /* ══════════════════════════════════════════
    LOADING WINDOW
@@ -134,22 +136,31 @@ function setupAutoUpdater() {
     createWindow();
   });
 
-  autoUpdater.on('error', () => {
-    // Update check failed (offline, etc.) — launch main app anyway
-    createWindow();
+  autoUpdater.on('error', (err) => {
+    // Send error to updater window if it's open
+    if (updaterWindow && !updaterWindow.isDestroyed()) {
+      updaterWindow.webContents.send('update-error', {
+        message: err ? err.message : 'Unknown error during update.',
+      });
+    } else {
+      // Update check failed (offline, etc.) — launch main app anyway
+      createWindow();
+    }
   });
 
   autoUpdater.on('download-progress', (progress) => {
     if (updaterWindow && !updaterWindow.isDestroyed()) {
       updaterWindow.webContents.send('update-progress', {
-        percent:     progress.percent,
-        transferred: progress.transferred,
-        total:       progress.total,
+        percent:       progress.percent,
+        transferred:   progress.transferred,
+        total:         progress.total,
+        bytesPerSecond: progress.bytesPerSecond,
       });
     }
   });
 
   autoUpdater.on('update-downloaded', () => {
+    updateDownloaded = true;
     if (updaterWindow && !updaterWindow.isDestroyed()) {
       updaterWindow.webContents.send('update-complete');
     }
@@ -162,16 +173,28 @@ function setupAutoUpdater() {
 /* ══════════════════════════════════════════
    UPDATER IPC
 ══════════════════════════════════════════ */
-ipcMain.on('download-update', () => {
-  if (autoUpdater) autoUpdater.downloadUpdate();
+
+// Step 1: User clicks "Download & Install" → we START the download
+ipcMain.on('start-update-download', () => {
+  if (autoUpdater) {
+    autoUpdater.downloadUpdate().catch((err) => {
+      if (updaterWindow && !updaterWindow.isDestroyed()) {
+        updaterWindow.webContents.send('update-error', {
+          message: err ? err.message : 'Download failed.',
+        });
+      }
+    });
+  }
 });
 
+// Step 2: Download finishes → user sees "Install & Restart" → they click it
 ipcMain.on('install-update', () => {
-  if (autoUpdater) {
-    autoUpdater.autoInstallOnAppQuit = true;
+  if (autoUpdater && updateDownloaded) {
+    // Prevent the app from just closing without installing
     app.removeAllListeners('window-all-closed');
     if (updaterWindow && !updaterWindow.isDestroyed()) updaterWindow.destroy();
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.destroy();
+    // isSilent=false (show installer), isForceRunAfter=true (relaunch after install)
     autoUpdater.quitAndInstall(false, true);
   }
 });
@@ -728,7 +751,8 @@ ipcMain.handle('start-scrape', async (event, config) => {
   }
 
   try {
-    sendLog('START', `ROM Scraper v1.0 starting...`);
+    const ver = app.getVersion();
+    sendLog('START', `ROM Scraper v${ver} starting...`);
     sendLog('INFO', `Target: ${config.url}`);
     sendLog('INFO', `Output: ${outputDir}`);
     sendLog('INFO', `Mode: ${usePuppeteer ? '🌐 Puppeteer headless browser (JS rendering + cookies)' : '⚡ Standard HTTP fetch'}`);
