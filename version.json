@@ -1,4 +1,4 @@
 {
-  "version": "1.0.5",
-  "releaseNotes": "Auto-updater install fix and dynamic version display."
+  "version": "1.0.6",
+  "releaseNotes": "Fixed auto-updater: download progress bar, actual installation, and dynamic version display across the app."
 }
