@@ -18,6 +18,8 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: true
         run: npm install
       - name: Build Windows installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build:win
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -59,6 +61,8 @@ jobs:
                   print('Skip:', p, e)
           EOF
       - name: Build Mac DMG
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build:mac
       - name: Upload Mac artifact
         uses: actions/upload-artifact@v4
