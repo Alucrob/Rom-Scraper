@@ -162,6 +162,10 @@ function setupAutoUpdater() {
 /* ══════════════════════════════════════════
    UPDATER IPC
 ══════════════════════════════════════════ */
+ipcMain.on('download-update', () => {
+  if (autoUpdater) autoUpdater.downloadUpdate();
+});
+
 ipcMain.on('install-update', () => {
   if (autoUpdater) {
     autoUpdater.autoInstallOnAppQuit = true;
