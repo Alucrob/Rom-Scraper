@@ -1,29 +1,24 @@
 name: Build & Release ROM Scraper
-
 on:
   push:
     tags:
       - 'v*'
-
 jobs:
-
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
         run: npm install
-
       - name: Build Windows installer
         run: npm run build:win
-
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
@@ -37,15 +32,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
         run: npm install
-
       - name: Fix dmg-builder color bug
         run: |
           python3 << 'EOF'
@@ -66,7 +60,6 @@ jobs:
           EOF
       - name: Build Mac DMG
         run: npm run build:mac
-
       - name: Upload Mac artifact
         uses: actions/upload-artifact@v4
         with:
@@ -81,19 +74,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
           name: windows-installer
           path: dist/
-
       - name: Download Mac artifact
         uses: actions/download-artifact@v4
         with:
           name: mac-installer
           path: dist/
-
       - name: Read version.json
         id: version
         run: |
@@ -101,7 +91,6 @@ jobs:
           NOTES=$(node -p "require('./version.json').releaseNotes")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "notes=$NOTES" >> $GITHUB_OUTPUT
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
