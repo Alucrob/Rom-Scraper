@@ -20,11 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        env:
-          PUPPETEER_SKIP_DOWNLOAD: true
+
       - name: Build Windows installer
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build:win
 
       - name: Upload Windows artifact
@@ -48,8 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        env:
-          PUPPETEER_SKIP_DOWNLOAD: true
+
       - name: Fix dmg-builder color bug
         run: |
           python3 << 'EOF'
@@ -69,8 +65,6 @@ jobs:
                   print('Skip:', p, e)
           EOF
       - name: Build Mac DMG
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build:mac
 
       - name: Upload Mac artifact
@@ -119,5 +113,7 @@ jobs:
           files: |
             dist/ROM-Scraper-Setup-*.exe
             dist/ROM-Scraper-*.dmg
+            dist/latest.yml
+            dist/latest-mac.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
