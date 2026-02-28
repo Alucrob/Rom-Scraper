@@ -1,4 +1,4 @@
 {
-  "version": "1.0.6",
+  "version": "1.0.7",
   "releaseNotes": "Fixed installer conflict error, version display now shows correctly everywhere, and activity log shows real version on startup."
 }
