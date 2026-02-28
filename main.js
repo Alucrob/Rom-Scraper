@@ -5,6 +5,26 @@ const https = require('https');
 const http = require('http');
 const url = require('url');
 
+/* ═══════════════════════════════════════════════════
+   SINGLE INSTANCE LOCK
+   ─────────────────────────────────────────────────
+   Prevents the "installer cannot close" error.
+   When NSIS tries to install over a running instance,
+   the second instance quits immediately and the first
+   one gets focused instead of blocking the installer.
+═══════════════════════════════════════════════════ */
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
 /* ── Auto-updater setup ── */
 let autoUpdater;
 try {
@@ -123,7 +143,10 @@ function createWindow() {
    AUTO-UPDATER LOGIC
 ══════════════════════════════════════════ */
 function setupAutoUpdater() {
-  if (!autoUpdater) return;
+  if (!autoUpdater) {
+    createWindow();
+    return;
+  }
 
   autoUpdater.on('update-available', (info) => {
     // Show updater window instead of main app
@@ -474,7 +497,6 @@ async function scrapeWithPuppeteer(pageUrl, cookies, config, outputDir, sendLog,
       Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
     });
 
-    // Inject session cookies
     if (cookies.length > 0) {
       sendLog('INFO', `Injecting ${cookies.length} session cookies...`);
       const domain = new URL(pageUrl).hostname;
@@ -538,7 +560,6 @@ async function scrapeWithPuppeteer(pageUrl, cookies, config, outputDir, sendLog,
 
     sendLog('SCAN', `Found ${imageUrls.length} image URLs. Downloading via browser (bypasses SSL restrictions)...`);
 
-    // ── Download each image THROUGH the browser so Referer/SSL are handled correctly ──
     let fileIndex = 0;
     for (const imgUrl of imageUrls) {
       if (!scrapeActive) break;
@@ -552,7 +573,6 @@ async function scrapeWithPuppeteer(pageUrl, cookies, config, outputDir, sendLog,
       const filename = sanitizeFilename(rawName.includes('.') ? rawName : `${rawName}.${ext}`);
 
       try {
-        // Use Puppeteer's built-in fetch — runs inside the browser with correct cookies & Referer
         const buffer = await page.evaluate(async (src) => {
           const resp = await fetch(src, { credentials: 'include' });
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -560,7 +580,7 @@ async function scrapeWithPuppeteer(pageUrl, cookies, config, outputDir, sendLog,
           return Array.from(new Uint8Array(ab));
         }, imgUrl);
 
-        if (!buffer || buffer.length < 3000) continue; // skip tiny tracking pixels
+        if (!buffer || buffer.length < 3000) continue;
 
         const filePath = path.join(outputDir, filename);
         const dir = path.dirname(filePath);
@@ -573,11 +593,11 @@ async function scrapeWithPuppeteer(pageUrl, cookies, config, outputDir, sendLog,
         sendLog('ERR', `Failed: ${filename} — ${err.message}`);
       }
 
-      if (config.delay > 0) await new Promise(r => setTimeout(r, config.delay * 500)); // half delay for browser DLs
+      if (config.delay > 0) await new Promise(r => setTimeout(r, config.delay * 500));
     }
 
     await page.close();
-    return []; // downloads already handled above
+    return [];
 
   } catch (err) {
     sendLog('ERR', `Browser error: ${err.message}`);
@@ -639,8 +659,6 @@ ipcMain.handle('start-scrape', async (event, config) => {
 
       const ext = getFileExtension(imgUrl);
       if (allowedExts.size > 0 && !allowedExts.has(ext)) continue;
-
-      // Skip tracking pixels and icons
       if (/emoji|1x1|pixel|blank\.|spacer\.|icon.*\.(png|gif)$/i.test(imgUrl)) continue;
 
       found++;
@@ -655,7 +673,6 @@ ipcMain.handle('start-scrape', async (event, config) => {
       try {
         const result = await downloadFile(imgUrl, outputDir, filename, cookieHeader);
 
-        // Skip tiny files (tracking pixels)
         if (result.size < 3000) {
           try { fs.unlinkSync(result.filePath); } catch {}
           sendLog('SKIP', `Too small (tracking pixel): ${filename}`);
@@ -696,7 +713,6 @@ ipcMain.handle('start-scrape', async (event, config) => {
     if (!scrapeActive) return;
 
     if (usePuppeteer) {
-      // Puppeteer handles both discovery AND downloading internally
       await scrapeWithPuppeteer(pageUrl, cookies, config, outputDir, sendLog, async ({ filename, ext, size, url: imgUrl, filePath }) => {
         if (downloaded >= config.maxFiles) { scrapeActive = false; return; }
 
@@ -723,7 +739,6 @@ ipcMain.handle('start-scrape', async (event, config) => {
       });
 
     } else {
-      // Standard HTTP fetch for regular non-social sites
       sendLog('SCAN', `Fetching: ${pageUrl}`);
       let pageData;
       try {
