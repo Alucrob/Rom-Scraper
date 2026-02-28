@@ -2,331 +2,301 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ROM Scraper — Update</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg-deep:    #111112;
+  --bg-panel:   #111318;
+  --bg-card:    #181B23;
+  --bg-input:   #1E2130;
+  --accent:     #FF4D2E;
+  --accent2:    #FF7A5C;
+  --text-pri:   #F0F2FF;
+  --text-sec:   #8A91B0;
+  --text-dim:   #444A6A;
+  --border:     #252A3A;
+  --success:    #2ECC8A;
+  --error:      #FF4D2E;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
 
 body {
-  background: #0A0B0F;
-  color: #F0F2FF;
-  font-family: 'IBM Plex Mono', monospace;
-  height: 100vh;
+  background: var(--bg-deep);
+  color: var(--text-pri);
+  font-family: var(--mono);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  user-select: none;
-}
-
-/* ── Titlebar ── */
-.titlebar {
-  height: 40px;
-  background: #0D0F14;
-  border-bottom: 1px solid #1E2030;
-  display: flex;
   align-items: center;
-  padding: 0 14px;
+  justify-content: center;
+  user-select: none;
   -webkit-app-region: drag;
-  flex-shrink: 0;
-}
-.titlebar-logo {
-  width: 22px; height: 22px;
-  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
-  border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; color: #fff;
-  flex-shrink: 0;
-}
-.titlebar-title {
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 2px; color: #F0F2FF;
-  text-transform: uppercase; margin-left: 10px;
-}
-.titlebar-sub {
-  font-size: 9px; color: #4A4F6A;
-  letter-spacing: 1px; margin-left: 8px;
 }
 
-/* ── Main content ── */
-.content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 28px 32px 24px;
-  gap: 20px;
-}
-
-/* ── Update available header ── */
-.update-header {
-  display: flex; align-items: center; gap: 14px;
-}
-.update-icon {
-  width: 48px; height: 48px;
-  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
+.updater-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 0 20px rgba(255,77,46,0.3);
-  flex-shrink: 0;
-  animation: iconPulse 2s ease-in-out infinite;
-}
-@keyframes iconPulse {
-  0%,100% { box-shadow: 0 0 20px rgba(255,77,46,0.3); }
-  50%      { box-shadow: 0 0 35px rgba(255,77,46,0.5); }
-}
-.update-title {
-  font-size: 16px; font-weight: 700;
-  color: #F0F2FF; letter-spacing: 1px;
-}
-.update-sub {
-  font-size: 10px; color: #6B7280;
-  margin-top: 4px; letter-spacing: 1px;
+  padding: 32px 36px;
+  width: 400px;
+  text-align: center;
+  -webkit-app-region: no-drag;
 }
 
-/* ── Version comparison ── */
+.logo {
+  width: 48px; height: 48px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: #fff;
+  box-shadow: 0 0 24px rgba(255,77,46,0.4);
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 14px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 10px; color: var(--text-sec); letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
 .version-row {
-  display: flex; align-items: center; gap: 12px;
-  background: #0D0F16;
-  border: 1px solid #1E2030;
-  border-radius: 8px;
-  padding: 14px 18px;
-}
-.ver-block { flex: 1; }
-.ver-label {
-  font-size: 8px; letter-spacing: 2px;
-  color: #4A4F6A; text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.ver-num {
-  font-size: 18px; font-weight: 700;
-  letter-spacing: 2px;
-}
-.ver-current .ver-num { color: #6B7280; }
-.ver-new .ver-num     { color: #FF4D2E; }
-.ver-arrow {
-  font-size: 20px; color: #FF4D2E;
-  opacity: 0.6;
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+  margin-bottom: 20px; font-size: 11px;
 }
 
-/* ── Release notes ── */
-.notes-label {
-  font-size: 8px; letter-spacing: 2px;
-  color: #4A4F6A; text-transform: uppercase;
+.ver-tag {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 600; letter-spacing: 0.5px;
+}
+
+.ver-current { background: var(--bg-input); color: var(--text-sec); border: 1px solid var(--border); }
+.ver-new { background: rgba(255,77,46,0.1); color: var(--accent); border: 1px solid rgba(255,77,46,0.3); }
+.ver-arrow { color: var(--text-dim); font-size: 14px; }
+
+.release-notes {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 10px; color: var(--text-sec);
+  text-align: left; line-height: 1.6;
+  margin-bottom: 20px;
+  max-height: 80px; overflow-y: auto;
+}
+
+/* ── Progress Bar ── */
+.progress-container {
+  display: none;
+  margin-bottom: 16px;
+}
+
+.progress-container.active { display: block; }
+
+.progress-bar-bg {
+  width: 100%; height: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
   margin-bottom: 8px;
 }
-.notes-box {
-  background: #0D0F16;
-  border: 1px solid #1E2030;
-  border-radius: 8px;
-  padding: 14px 16px;
-  font-size: 11px;
-  color: #8B92B8;
-  line-height: 1.7;
-  max-height: 80px;
-  overflow-y: auto;
-}
 
-/* ── Progress ── */
-.progress-wrap {
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-}
-.progress-wrap.visible { display: flex; }
-.progress-label {
-  display: flex; justify-content: space-between;
-  font-size: 9px; color: #6B7280; letter-spacing: 1px;
-}
-.progress-track {
-  height: 4px;
-  background: #1E2030;
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-fill {
+.progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FF4D2E, #FF6B4A);
-  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px;
   width: 0%;
   transition: width 0.3s ease;
-  box-shadow: 0 0 8px rgba(255,77,46,0.5);
 }
-.progress-bytes {
-  font-size: 9px; color: #4A4F6A;
-  text-align: right; letter-spacing: 1px;
+
+.progress-text {
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--text-sec); letter-spacing: 0.5px;
+}
+
+.progress-percent {
+  color: var(--accent); font-weight: 600;
 }
 
 /* ── Status message ── */
 .status-msg {
   font-size: 10px;
-  color: #6B7280;
-  letter-spacing: 1px;
+  color: var(--text-sec);
+  margin-bottom: 16px;
   min-height: 16px;
-  text-align: center;
+  letter-spacing: 0.5px;
 }
-.status-msg.success { color: #22C55E; }
-.status-msg.error   { color: #EF4444; }
+
+.status-msg.error { color: var(--error); }
+.status-msg.success { color: var(--success); }
 
 /* ── Buttons ── */
 .btn-row {
-  display: flex; gap: 10px;
-  margin-top: auto;
+  display: flex; gap: 10px; justify-content: center;
 }
+
 .btn {
-  flex: 1; padding: 11px;
-  border: none; border-radius: 7px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
+  padding: 10px 20px;
+  border: none; border-radius: 6px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
   cursor: pointer; transition: all 0.15s;
 }
+
+.btn:disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
+
 .btn-primary {
-  background: linear-gradient(135deg, #FF4D2E, #FF6B4A);
-  color: #fff;
+  background: var(--accent); color: #fff;
   box-shadow: 0 0 16px rgba(255,77,46,0.3);
 }
-.btn-primary:hover {
-  box-shadow: 0 0 24px rgba(255,77,46,0.5);
-  transform: translateY(-1px);
-}
-.btn-primary:disabled {
-  opacity: 0.5; cursor: not-allowed; transform: none;
-}
-.btn-secondary {
-  background: #14161F;
-  color: #6B7280;
-  border: 1px solid #1E2030;
-}
-.btn-secondary:hover { color: #F0F2FF; border-color: #2E3250; }
-.btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-primary:hover:not(:disabled) { background: #e6442a; box-shadow: 0 0 24px rgba(255,77,46,0.5); }
 
-/* ── Corner accents ── */
-.corner { position:fixed; width:14px; height:14px; border-color:rgba(255,77,46,0.15); border-style:solid; }
-.corner-tl { top:8px;  left:8px;  border-width:1px 0 0 1px; }
-.corner-tr { top:8px;  right:8px; border-width:1px 1px 0 0; }
-.corner-bl { bottom:8px; left:8px;  border-width:0 0 1px 1px; }
-.corner-br { bottom:8px; right:8px; border-width:0 1px 1px 0; }
+.btn-ghost {
+  background: transparent; color: var(--text-sec);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--bg-input); color: var(--text-pri); }
+
+.btn-success {
+  background: var(--success); color: #111;
+  box-shadow: 0 0 16px rgba(46,204,138,0.3);
+}
+.btn-success:hover:not(:disabled) { background: #27b87a; }
 </style>
 </head>
 <body>
 
-<div class="corner corner-tl"></div>
-<div class="corner corner-tr"></div>
-<div class="corner corner-bl"></div>
-<div class="corner corner-br"></div>
+<div class="updater-card">
+  <div class="logo">RS</div>
+  <div class="title">Update Available</div>
+  <div class="subtitle">A new version of ROM Scraper is ready</div>
 
-<!-- Titlebar -->
-<div class="titlebar">
-  <div class="titlebar-logo">RS</div>
-  <div class="titlebar-title">ROM Scraper</div>
-  <div class="titlebar-sub">// Update Available</div>
-</div>
-
-<!-- Content -->
-<div class="content">
-
-  <!-- Header -->
-  <div class="update-header">
-    <div class="update-icon">↑</div>
-    <div>
-      <div class="update-title">Update Available</div>
-      <div class="update-sub">A new version of ROM Scraper is ready to install</div>
-    </div>
-  </div>
-
-  <!-- Version comparison -->
   <div class="version-row">
-    <div class="ver-block ver-current">
-      <div class="ver-label">Current Version</div>
-      <div class="ver-num" id="currentVer">1.0.0</div>
+    <span class="ver-tag ver-current" id="verCurrent">v—</span>
+    <span class="ver-arrow">→</span>
+    <span class="ver-tag ver-new" id="verNew">v—</span>
+  </div>
+
+  <div class="release-notes" id="releaseNotes">Loading release notes...</div>
+
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
     </div>
-    <div class="ver-arrow">→</div>
-    <div class="ver-block ver-new">
-      <div class="ver-label">New Version</div>
-      <div class="ver-num" id="newVer">—</div>
+    <div class="progress-text">
+      <span id="progressDetail">0 MB / 0 MB</span>
+      <span class="progress-percent" id="progressPercent">0%</span>
     </div>
   </div>
 
-  <!-- Release notes -->
-  <div>
-    <div class="notes-label">What's New</div>
-    <div class="notes-box" id="releaseNotes">Loading release notes...</div>
-  </div>
-
-  <!-- Progress (hidden until download starts) -->
-  <div class="progress-wrap" id="progressWrap">
-    <div class="progress-label">
-      <span>Downloading update...</span>
-      <span id="progressPct">0%</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <div class="progress-bytes" id="progressBytes"></div>
-  </div>
-
-  <!-- Status -->
   <div class="status-msg" id="statusMsg"></div>
 
-  <!-- Buttons -->
-  <div class="btn-row">
-    <button class="btn btn-secondary" id="skipBtn" onclick="skip()">Skip for Now</button>
-    <button class="btn btn-primary"   id="updateBtn" onclick="startUpdate()">Download & Install</button>
+  <div class="btn-row" id="btnRow">
+    <button class="btn btn-ghost" id="btnSkip" onclick="skipUpdate()">Later</button>
+    <button class="btn btn-primary" id="btnDownload" onclick="startDownload()">Download &amp; Install</button>
+    <button class="btn btn-success" id="btnInstall" onclick="installNow()" style="display:none;">Install &amp; Restart</button>
   </div>
-
 </div>
 
 <script>
 function formatBytes(b) {
-  if (!b) return '';
+  if (b < 1024) return b + ' B';
   if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
   return (b / 1048576).toFixed(1) + ' MB';
 }
 
-function setStatus(msg, type = '') {
-  const el = document.getElementById('statusMsg');
-  el.textContent = msg;
-  el.className = 'status-msg ' + type;
+function formatSpeed(bytesPerSec) {
+  if (bytesPerSec < 1024) return bytesPerSec + ' B/s';
+  if (bytesPerSec < 1048576) return (bytesPerSec / 1024).toFixed(0) + ' KB/s';
+  return (bytesPerSec / 1048576).toFixed(1) + ' MB/s';
 }
 
-// Receive update info from main process
-window.updaterAPI.onStatus(({ currentVersion, newVersion, releaseNotes }) => {
-  document.getElementById('currentVer').textContent = currentVersion;
-  document.getElementById('newVer').textContent     = newVersion;
-  document.getElementById('releaseNotes').textContent = releaseNotes || 'No release notes provided.';
+// Strip HTML tags from release notes (GitHub sends HTML)
+function stripHtml(html) {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+// Receive version info
+window.updaterAPI.onUpdateStatus((data) => {
+  document.getElementById('verCurrent').textContent = 'v' + data.currentVersion;
+  document.getElementById('verNew').textContent = 'v' + data.newVersion;
+  const notes = typeof data.releaseNotes === 'string'
+    ? stripHtml(data.releaseNotes)
+    : (data.releaseNotes || []).map(n => stripHtml(n.note || n)).join('\n');
+  document.getElementById('releaseNotes').textContent = notes || 'See GitHub for details.';
 });
 
-// Download progress
-window.updaterAPI.onProgress(({ percent, transferred, total }) => {
-  document.getElementById('progressWrap').classList.add('visible');
-  document.getElementById('progressFill').style.width = percent.toFixed(1) + '%';
-  document.getElementById('progressPct').textContent  = percent.toFixed(0) + '%';
-  document.getElementById('progressBytes').textContent =
-    formatBytes(transferred) + ' / ' + formatBytes(total);
-  document.getElementById('updateBtn').disabled = true;
-  document.getElementById('skipBtn').disabled   = true;
+// User clicks "Download & Install"
+function startDownload() {
+  document.getElementById('btnDownload').disabled = true;
+  document.getElementById('btnDownload').textContent = 'DOWNLOADING...';
+  document.getElementById('btnSkip').disabled = true;
+  document.getElementById('progressContainer').classList.add('active');
+  document.getElementById('statusMsg').textContent = 'Starting download...';
+  document.getElementById('statusMsg').className = 'status-msg';
+
+  window.updaterAPI.startDownload();
+}
+
+// Receive download progress
+window.updaterAPI.onUpdateProgress((data) => {
+  const pct = Math.round(data.percent);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPercent').textContent = pct + '%';
+
+  const detail = formatBytes(data.transferred) + ' / ' + formatBytes(data.total);
+  const speed = data.bytesPerSecond ? ' — ' + formatSpeed(data.bytesPerSecond) : '';
+  document.getElementById('progressDetail').textContent = detail + speed;
+
+  document.getElementById('statusMsg').textContent = 'Downloading update... ' + pct + '%';
 });
 
-// Download complete — ready to install
-window.updaterAPI.onComplete(() => {
+// Download complete
+window.updaterAPI.onUpdateComplete(() => {
   document.getElementById('progressFill').style.width = '100%';
-  document.getElementById('progressPct').textContent  = '100%';
-  setStatus('Update downloaded! Restarting to install...', 'success');
-  document.getElementById('updateBtn').disabled = false;
-  document.getElementById('updateBtn').textContent = 'Restart & Install';
-  document.getElementById('updateBtn').onclick = () => window.updaterAPI.installNow();
-  setTimeout(() => window.updaterAPI.installNow(), 2000);
+  document.getElementById('progressPercent').textContent = '100%';
+  document.getElementById('statusMsg').textContent = 'Download complete! Ready to install.';
+  document.getElementById('statusMsg').className = 'status-msg success';
+
+  // Hide download button, show install button
+  document.getElementById('btnDownload').style.display = 'none';
+  document.getElementById('btnInstall').style.display = '';
+  document.getElementById('btnSkip').disabled = false;
+  document.getElementById('btnSkip').textContent = 'LATER';
 });
 
-function startUpdate() {
-  setStatus('Starting download...');
-  document.getElementById('updateBtn').disabled = true;
-  document.getElementById('skipBtn').disabled   = false;
-  window.updaterAPI.downloadUpdate();
+// Error
+window.updaterAPI.onUpdateError((data) => {
+  document.getElementById('statusMsg').textContent = 'Update error: ' + (data.message || 'Unknown error');
+  document.getElementById('statusMsg').className = 'status-msg error';
+  document.getElementById('btnDownload').disabled = false;
+  document.getElementById('btnDownload').textContent = 'RETRY DOWNLOAD';
+  document.getElementById('btnSkip').disabled = false;
+});
+
+// User clicks "Install & Restart"
+function installNow() {
+  document.getElementById('btnInstall').disabled = true;
+  document.getElementById('btnInstall').textContent = 'INSTALLING...';
+  document.getElementById('btnSkip').disabled = true;
+  document.getElementById('statusMsg').textContent = 'Installing update and restarting...';
+  window.updaterAPI.installUpdate();
 }
 
-function skip() {
+// User clicks "Later"
+function skipUpdate() {
   window.updaterAPI.skipUpdate();
 }
 </script>
