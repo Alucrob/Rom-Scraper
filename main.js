@@ -5,6 +5,12 @@ const https = require('https');
 const http = require('http');
 const url = require('url');
 
+/* ── Stealth & Agent ── */
+const stealth = require('./src/js/stealth/stealth-manager');
+const { RomAgent } = require('./src/agent/romagent');
+const romAgent = new RomAgent();
+stealth.loadConfig();
+
 /* ═══════════════════════════════════════════════════
    SINGLE INSTANCE LOCK
    ─────────────────────────────────────────────────
@@ -148,18 +154,37 @@ function setupAutoUpdater() {
     return;
   }
 
+  let resolved = false;
+  function resolveWithWindow() {
+    if (resolved) return;
+    resolved = true;
+    createWindow();
+  }
+
+  // Safety fallback — if update check hangs, launch main app after 8 seconds
+  const fallbackTimer = setTimeout(() => {
+    if (!resolved && (!updaterWindow || updaterWindow.isDestroyed())) {
+      console.log('Auto-updater timed out — launching main app.');
+      resolveWithWindow();
+    }
+  }, 8000);
+
   autoUpdater.on('update-available', (info) => {
+    clearTimeout(fallbackTimer);
+    resolved = true;
     // Show updater window instead of main app
     const currentVersion = app.getVersion();
     createUpdaterWindow(currentVersion, info);
   });
 
   autoUpdater.on('update-not-available', () => {
+    clearTimeout(fallbackTimer);
     // No update — launch main app normally
-    createWindow();
+    resolveWithWindow();
   });
 
   autoUpdater.on('error', (err) => {
+    clearTimeout(fallbackTimer);
     // Send error to updater window if it's open
     if (updaterWindow && !updaterWindow.isDestroyed()) {
       updaterWindow.webContents.send('update-error', {
@@ -167,7 +192,7 @@ function setupAutoUpdater() {
       });
     } else {
       // Update check failed (offline, etc.) — launch main app anyway
-      createWindow();
+      resolveWithWindow();
     }
   });
 
@@ -190,7 +215,7 @@ function setupAutoUpdater() {
   });
 
   // Check for updates — triggers the chain above
-  autoUpdater.checkForUpdates().catch(() => createWindow());
+  autoUpdater.checkForUpdates().catch(() => resolveWithWindow());
 }
 
 /* ══════════════════════════════════════════
@@ -247,6 +272,12 @@ ipcMain.on('win-maximize', () => {
 ipcMain.on('win-close', () => mainWindow?.close());
 
 ipcMain.handle('get-version', () => app.getVersion());
+
+/* ── Stealth config IPC ── */
+ipcMain.handle('get-stealth-config', () => stealth.getConfig());
+ipcMain.on('update-stealth-config', (event, newConfig) => {
+  stealth.updateConfig(newConfig);
+});
 
 /* ── Browse for output directory ── */
 ipcMain.handle('browse-directory', async () => {
@@ -355,13 +386,13 @@ function downloadFile(fileUrl, outputDir, filename, cookieHeader = '') {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     const file = fs.createWriteStream(filePath);
+    const stealthHeaders = stealth.buildRequestHeaders(fileUrl, {
+      ...(cookieHeader ? { 'Cookie': cookieHeader } : {})
+    });
     const req = lib.get({
       hostname: parsed.hostname,
       path: parsed.path,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
-        ...(cookieHeader ? { 'Cookie': cookieHeader } : {})
-      }
+      headers: stealthHeaders
     }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         file.close();
@@ -390,18 +421,17 @@ function fetchPage(pageUrl, timeoutMs = 10000, cookieHeader = '') {
   return new Promise((resolve, reject) => {
     const parsed = url.parse(pageUrl);
     const lib = parsed.protocol === 'https:' ? https : http;
+    const stealthHeaders = stealth.buildRequestHeaders(pageUrl, {
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1',
+      ...(cookieHeader ? { 'Cookie': cookieHeader } : {}),
+    });
     const req = lib.get({
       hostname: parsed.hostname,
       path: parsed.path || '/',
       port: parsed.port,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-        ...(cookieHeader ? { 'Cookie': cookieHeader } : {}),
-      }
+      headers: stealthHeaders
     }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         resolve(fetchPage(res.headers.location, timeoutMs, cookieHeader));
@@ -623,6 +653,14 @@ ipcMain.handle('start-scrape', async (event, config) => {
   const sendLog = (level, msg) => {
     if (mainWindow) mainWindow.webContents.send('log', { level, msg, ts: new Date().toTimeString().split(' ')[0] });
   };
+  const sendAgentLog = (msg) => {
+    if (mainWindow) mainWindow.webContents.send('agent-log', { msg });
+  };
+
+  // Start ROMAGENT if agent mode is enabled
+  if (stealth.isAgentMode()) {
+    romAgent.start(sendAgentLog);
+  }
   const sendResult = row => { if (mainWindow) mainWindow.webContents.send('result', row); };
   const sendProgress = pct => {
     if (mainWindow) mainWindow.webContents.send('progress', { pct, found, downloaded, errors, totalBytes });
@@ -698,14 +736,29 @@ ipcMain.handle('start-scrape', async (event, config) => {
         sendLog('OK', `Downloaded: ${filename} (${formatSize(result.size)})`);
         sendProgress(Math.min(99, (downloaded / config.maxFiles) * 100));
 
+        // Feed success to ROMAGENT
+        try { const domain = new URL(imgUrl).hostname; romAgent.onRequestResult(domain, 200, true); } catch {}
+
       } catch (err) {
         errors++;
         found--;
         sendResult({ status: 'error', filename, type: fileType, size: '—', date: '—', url: imgUrl });
         sendLog('ERR', `Failed: ${filename} — ${err.message}`);
+
+        // Feed failure to ROMAGENT
+        const statusMatch = err.message.match(/HTTP (\d+)/);
+        const statusCode = statusMatch ? parseInt(statusMatch[1]) : 0;
+        try { const domain = new URL(imgUrl).hostname; romAgent.onRequestResult(domain, statusCode, false); } catch {}
       }
 
-      if (config.delay > 0) await new Promise(r => setTimeout(r, config.delay * 1000));
+      // Apply delay: agent adaptive jitter or configured delay
+      let delayMs = config.delay > 0 ? config.delay * 1000 : 0;
+      if (romAgent.active) {
+        try { const domain = new URL(imgUrl).hostname; delayMs = Math.max(delayMs, romAgent.getAdaptiveDelay(domain)); } catch {}
+      } else if (stealth.isEnabled('request-jitter')) {
+        delayMs = Math.max(delayMs, stealth.getJitterDelay());
+      }
+      if (delayMs > 0) await new Promise(r => setTimeout(r, delayMs));
     }
   }
 
@@ -784,6 +837,7 @@ ipcMain.handle('start-scrape', async (event, config) => {
   }
 
   await closeBrowser();
+  if (romAgent.active) romAgent.stop();
   scrapeActive = false;
 });
 

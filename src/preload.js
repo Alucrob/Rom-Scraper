@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld('romAPI', {
   // App info
   getVersion: () => ipcRenderer.invoke('get-version'),
 
+  // Stealth config
+  getStealthConfig:    () => ipcRenderer.invoke('get-stealth-config'),
+  updateStealthConfig: (cfg) => ipcRenderer.send('update-stealth-config', cfg),
+
   // Exports
   saveLog:    (txt)  => ipcRenderer.invoke('save-log', txt),
   exportCsv:  (data) => ipcRenderer.invoke('export-csv', data),
@@ -29,4 +33,5 @@ contextBridge.exposeInMainWorld('romAPI', {
   onResult:   (cb) => ipcRenderer.on('result',         (e, d) => cb(d)),
   onProgress: (cb) => ipcRenderer.on('progress',       (e, d) => cb(d)),
   onComplete: (cb) => ipcRenderer.on('scrape-complete',(e, d) => cb(d)),
+  onAgentLog: (cb) => ipcRenderer.on('agent-log',      (e, d) => cb(d)),
 });

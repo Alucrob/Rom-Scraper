@@ -1,0 +1,65 @@
+/* ═══════════════════════════════════════════════════
+   ROM SCRAPER v1.0.8 "AFJORD" — Sage Green Theme
+   ═══════════════════════════════════════════════════ */
+:root {
+  /* Sage Green accent palette */
+  --accent:     #A8B895;
+  --accent2:    #B2C2A2;
+  --accent-dim: #5A6B4A;
+  --accent-glow: rgba(168, 184, 149, 0.35);
+
+  /* Dark charcoal/slate backgrounds */
+  --bg-deep:    #1A1B1E;
+  --bg-panel:   #1E1F23;
+  --bg-card:    #232528;
+  --bg-input:   #2A2C30;
+  --bg-hover:   #333538;
+
+  /* Text */
+  --text-pri:   #E8EAF0;
+  --text-sec:   #9CA3B8;
+  --text-dim:   #555B70;
+
+  /* Borders */
+  --border:     #2E3038;
+  --border-lt:  #3A3D48;
+
+  /* Semantic colors */
+  --success:    #6ECB8B;
+  --warning:    #E8C44A;
+  --error:      #E05555;
+  --info:       #6BA3E8;
+  --tip:        #A07CE0;
+  --agent:      #A8B895;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-pri);
+  font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-lt); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* Selection */
+::selection {
+  background: rgba(168, 184, 149, 0.3);
+  color: var(--text-pri);
+}

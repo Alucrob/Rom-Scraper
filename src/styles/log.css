@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════════
+   ACTIVITY LOG — Color-coded entries
+   ═══════════════════════════════════════════════════ */
+
+.log-body {
+  flex: 1; overflow-y: auto; padding: 8px 12px;
+  background: #131416;
+  font-size: 11px; line-height: 1.75;
+  font-family: var(--font-mono);
+}
+
+.log-line { display: flex; gap: 9px; }
+.log-ts   { color: var(--text-dim); flex-shrink: 0; font-size: 10px; }
+.log-lvl  { font-weight: 700; flex-shrink: 0; width: 50px; font-size: 10px; }
+.log-msg  { color: var(--text-sec); word-break: break-all; }
+
+/* Standard levels */
+.lvl-info   { color: var(--info); }
+.lvl-ok     { color: var(--success); }
+.lvl-warn   { color: var(--warning); }
+.lvl-err    { color: var(--error); }
+.lvl-scan   { color: var(--accent2); }
+.lvl-start  { color: var(--accent); }
+.lvl-done   { color: var(--success); }
+.lvl-skip   { color: var(--text-dim); }
+.lvl-preset { color: var(--tip); }
+
+/* ROMAGENT level — sage green */
+.lvl-agent  { color: var(--agent); }
+
+/* Agent messages get a subtle left border highlight */
+.log-line.agent-line {
+  border-left: 2px solid var(--accent);
+  padding-left: 8px;
+  margin-left: -10px;
+}
+
+/* Results table */
+.results-table { flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+thead th {
+  background: var(--bg-card); padding: 8px 12px;
+  text-align: left; font-size: 9px; letter-spacing: 1.5px;
+  color: var(--text-sec); text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 1; font-weight: 700; white-space: nowrap;
+  font-family: var(--font-mono);
+}
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.02); cursor: pointer; transition: background 200ms; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+tbody tr.sel { background: rgba(168,184,149,0.06); }
+tbody td {
+  padding: 8px 12px; color: var(--text-sec);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
+}
+.td-status-ok  { color: var(--success); }
+.td-status-err { color: var(--error); }
+.td-status-dl  { color: var(--warning); }
+.td-fn   { color: var(--text-pri); font-weight: 500; }
+.td-type { color: var(--info); font-size: 9px; letter-spacing: 1px; font-family: var(--font-mono); }
+.td-url  { color: var(--text-dim); font-size: 9.5px; max-width: 180px; }

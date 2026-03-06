@@ -1,0 +1,113 @@
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS — Transitions, hover effects, loading
+   ═══════════════════════════════════════════════════ */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--success); }
+  50%      { box-shadow: 0 0 12px var(--success); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Page entrance ── */
+.page-enter {
+  animation: fadeUp 0.3s ease both;
+}
+
+/* ── Card stagger ── */
+.card { animation: fadeUp 0.3s ease both; }
+.card:nth-child(1) { animation-delay: 0.04s; }
+.card:nth-child(2) { animation-delay: 0.08s; }
+.card:nth-child(3) { animation-delay: 0.12s; }
+.card:nth-child(4) { animation-delay: 0.16s; }
+.card:nth-child(5) { animation-delay: 0.20s; }
+
+/* ── Module card stagger ── */
+.module-card { animation: fadeUp 0.25s ease both; }
+.module-card:nth-child(1)  { animation-delay: 0.02s; }
+.module-card:nth-child(2)  { animation-delay: 0.04s; }
+.module-card:nth-child(3)  { animation-delay: 0.06s; }
+.module-card:nth-child(4)  { animation-delay: 0.08s; }
+.module-card:nth-child(5)  { animation-delay: 0.10s; }
+.module-card:nth-child(6)  { animation-delay: 0.12s; }
+.module-card:nth-child(7)  { animation-delay: 0.14s; }
+.module-card:nth-child(8)  { animation-delay: 0.16s; }
+.module-card:nth-child(9)  { animation-delay: 0.18s; }
+.module-card:nth-child(10) { animation-delay: 0.20s; }
+.module-card:nth-child(11) { animation-delay: 0.22s; }
+.module-card:nth-child(12) { animation-delay: 0.24s; }
+.module-card:nth-child(13) { animation-delay: 0.26s; }
+.module-card:nth-child(14) { animation-delay: 0.28s; }
+.module-card:nth-child(15) { animation-delay: 0.30s; }
+
+/* ── Titlebar entrance ── */
+.titlebar { animation: slideDown 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) both; }
+
+/* ── Circular progress ring ── */
+.progress-ring {
+  width: 48px; height: 48px;
+  position: relative;
+}
+.progress-ring svg {
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+.progress-ring-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 3;
+}
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 126;
+  stroke-dashoffset: 126;
+  transition: stroke-dashoffset 0.4s ease;
+}
+.progress-ring.indeterminate .progress-ring-fill {
+  stroke-dasharray: 40 126;
+  animation: ringSpin 1.4s ease-in-out infinite;
+}
+
+@keyframes ringSpin {
+  0%   { stroke-dasharray: 1 126; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 63 126; stroke-dashoffset: -30; }
+  100% { stroke-dasharray: 1 126; stroke-dashoffset: -126; }
+}
+
+/* ── Skeleton loading ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

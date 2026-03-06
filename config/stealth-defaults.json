@@ -1,0 +1,20 @@
+{
+  "agentMode": false,
+  "methods": {
+    "user-agent-rotation":    { "enabled": true,  "name": "User-Agent Rotation",           "desc": "Rotate through 50+ modern browser UA strings on every request",  "icon": "&#x1F310;" },
+    "proxy-rotation":         { "enabled": false, "name": "IP Rotation & Proxy Support",   "desc": "Route requests through HTTP/SOCKS5 rotating proxy backbones",     "icon": "&#x1F6E1;" },
+    "header-spoofing":        { "enabled": true,  "name": "HTTP Header Spoofing",          "desc": "Randomize Accept-Language, Referer, and DNT headers",             "icon": "&#x1F4E8;" },
+    "exponential-backoff":    { "enabled": true,  "name": "Exponential Backoff",           "desc": "Retry with increasing delays (2s, 4s, 8s...) on 429/403 errors", "icon": "&#x23F3;" },
+    "request-jitter":         { "enabled": true,  "name": "Randomized Request Jitter",     "desc": "Add random delay (0.5-3s) between requests to mimic humans",      "icon": "&#x1F3B2;" },
+    "headless-browser":       { "enabled": false, "name": "Headless Browser Emulation",    "desc": "Render JS-heavy anti-bot pages via Playwright or Puppeteer",      "icon": "&#x1F5A5;" },
+    "captcha-solver":         { "enabled": false, "name": "Captcha Solver Integration",    "desc": "Hook into 2Captcha or Anti-Captcha API when challenges appear",   "icon": "&#x1F9E9;" },
+    "referrer-spoofing":      { "enabled": true,  "name": "Referrer Spoofing",             "desc": "Generate legitimate-looking referrers (Google, DuckDuckGo, etc.)", "icon": "&#x1F517;" },
+    "cookie-persistence":     { "enabled": false, "name": "Cookie Persistence & Aging",    "desc": "Maintain sessions and age cookies before high-volume scrapes",     "icon": "&#x1F36A;" },
+    "tls-fingerprint":        { "enabled": false, "name": "TLS/SSL Fingerprint Randomization", "desc": "Mimic specific browser TLS fingerprints (JA3) per request",   "icon": "&#x1F512;" },
+    "browser-fingerprint":    { "enabled": false, "name": "Browser Fingerprint Spoofing",  "desc": "Randomize Canvas, WebGL, and screen resolution in headless mode", "icon": "&#x1F3AD;" },
+    "geolocation-spoofing":   { "enabled": false, "name": "Geolocation Spoofing",          "desc": "Align IP location with browser timezone and coordinates",         "icon": "&#x1F30D;" },
+    "honeypot-detection":     { "enabled": true,  "name": "Honey Pot Link Detection",      "desc": "Identify and skip hidden display:none links designed to trap bots","icon": "&#x1F36F;" },
+    "human-simulation":       { "enabled": false, "name": "Human Interaction Simulation",   "desc": "Random mouse movements and scroll patterns in headless browsers", "icon": "&#x1F9D1;" },
+    "protocol-rotation":      { "enabled": false, "name": "Protocol Rotation",             "desc": "Switch between HTTP/1.1 and HTTP/2 to bypass server-side filters","icon": "&#x1F504;" }
+  }
+}
