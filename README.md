@@ -56,8 +56,8 @@ Built with Electron, it runs natively on both **Windows** and **macOS** and feat
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Alucrob/Rom-Scraper.git
-cd Rom-Scraper
+git clone https://github.com/Alucrob/AFJORD.git
+cd AFJORD
 
 # 2. Install dependencies
 npm install
