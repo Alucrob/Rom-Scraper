@@ -60,7 +60,7 @@ jobs:
               except Exception as e:
                   print('Skip:', p, e)
           EOF
-      - name: Build Mac DMG
+      - name: Build Mac DMG + ZIP
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build:mac
@@ -70,6 +70,7 @@ jobs:
           name: mac-installer
           path: |
             dist/*.dmg
+            dist/*.zip
             dist/latest-mac.yml
 
   release:
@@ -106,6 +107,7 @@ jobs:
           files: |
             dist/*.exe
             dist/*.dmg
+            dist/*.zip
             dist/latest.yml
             dist/latest-mac.yml
         env:

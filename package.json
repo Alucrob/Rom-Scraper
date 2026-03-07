@@ -59,10 +59,16 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "assets/icon.png",
-      "artifactName": "AFJORD-${version}.dmg",
+      "artifactName": "AFJORD-${version}.${ext}",
       "category": "public.app-category.productivity",
       "darkModeSupport": true
     },
