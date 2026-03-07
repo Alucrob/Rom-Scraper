@@ -1,4 +1,4 @@
 {
-  "version": "1.0.8",
+  "version": "1.0.9",
   "releaseNotes": "Full rebrand to AFJORD. Black and yellow stealth theme, radar-sweep loading screen, modular UI architecture, AFIND dynamic stealth orchestration, 15 anti-blocking methods, settings dashboard with stealth module cards, and instructions guide."
 }
