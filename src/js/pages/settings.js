@@ -52,6 +52,7 @@ function setAgentMode(enabled) {
 function renderStealthTab(container) {
   const cfg = loadStealthConfig();
   const methods = cfg.methods || {};
+  const methodEntries = Object.entries(methods);
 
   container.innerHTML = '';
 
@@ -86,7 +87,20 @@ function renderStealthTab(container) {
   const grid = document.createElement('div');
   grid.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
 
-  Object.entries(methods).forEach(([id, mod]) => {
+  if (!methodEntries.length) {
+    const warn = document.createElement('div');
+    warn.className = 'card';
+    warn.innerHTML = `
+      <div class="card-hdr">Stealth Modules Unavailable</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--text-sec);">
+        No stealth methods were loaded. This usually means
+        <code>config/stealth-defaults.json</code> is missing from the build package.
+      </div>`;
+    container.appendChild(warn);
+    return;
+  }
+
+  methodEntries.forEach(([id, mod]) => {
     const card = window.ModuleCard.create(
       { id, name: mod.name, desc: mod.desc, icon: mod.icon, enabled: mod.enabled },
       {

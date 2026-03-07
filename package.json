@@ -23,6 +23,7 @@
       "main.js",
       "src/**/*",
       "assets/**/*",
+      "config/**/*",
       "version.json",
       "node_modules/**/*",
       "!node_modules/puppeteer/.local-chromium/**/*"
