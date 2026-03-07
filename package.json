@@ -1,6 +1,6 @@
 {
   "name": "afjord",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "AFJORD — Stealth acquisition engine for automated media collection and content migration.",
   "main": "main.js",
   "scripts": {
